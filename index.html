@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zenith Sports | Levando seu esporte a sério</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --accent: #c8f000;
+      --accent-dim: #9abb00;
+      --bg: #080808;
+      --surface: #111111;
+      --surface2: #1a1a1a;
+      --border: #222222;
+      --text: #f0f0f0;
+      --text-muted: #888888;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 2px; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 4rem;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(200,240,0,0.08);
+      transition: all 0.3s;
+    }
+
+    nav.scrolled {
+      padding: 0.8rem 4rem;
+      background: rgba(8,8,8,0.97);
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1.5rem;
+      color: #080808;
+      letter-spacing: -1px;
+    }
+
+    .logo-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+
+    .logo-text span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-cta {
+      background: var(--accent);
+      color: #080808 !important;
+      padding: 0.5rem 1.2rem;
+      border-radius: 4px;
+      font-weight: 700 !important;
+      color: #080808 !important;
+    }
+
+    .nav-cta:hover { background: #e0ff00 !important; color: #080808 !important; }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 0 4rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 70% 50%, rgba(200,240,0,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(200,240,0,0.04) 0%, transparent 60%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,240,0,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,0,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 700px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(200,240,0,0.1);
+      border: 1px solid rgba(200,240,0,0.3);
+      color: var(--accent);
+      padding: 0.35rem 1rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(4rem, 9vw, 8rem);
+      line-height: 0.9;
+      letter-spacing: -1px;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title .accent {
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-title .outline {
+      -webkit-text-stroke: 2px rgba(240,240,240,0.3);
+      color: transparent;
+      display: block;
+    }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent);
+      color: #080808;
+      padding: 0.9rem 2rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+      background: #e0ff00;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(200,240,0,0.3);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: transparent;
+      color: var(--text);
+      padding: 0.9rem 2rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .hero-stats {
+      position: absolute;
+      right: 4rem;
+      bottom: 4rem;
+      display: flex;
+      gap: 3rem;
+      z-index: 2;
+    }
+
+    .stat { text-align: right; }
+
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 2.5rem;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      z-index: 2;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollDown 1.5s ease-in-out infinite;
+    }
+
+    @keyframes scrollDown {
+      0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
+      50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+      100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
+    }
+
+    /* ─── MARQUEE ─── */
+    .marquee-section {
+      background: var(--accent);
+      padding: 1rem 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      animation: marquee 20s linear infinite;
+      width: max-content;
+    }
+
+    .marquee-item {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 0 2rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      color: #080808;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .marquee-dot {
+      width: 6px; height: 6px;
+      background: #080808;
+      border-radius: 50%;
+      opacity: 0.4;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    /* ─── SECTION BASE ─── */
+    section { padding: 6rem 4rem; }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 1rem;
+    }
+
+    /* ─── ABOUT ─── */
+    #sobre {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+    }
+
+    .about-text p {
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+
+    .about-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .feature-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-3px);
+    }
+
+    .feature-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-card h4 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-card p {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+
+    .visual-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .visual-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+    }
+
+    .big-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 6rem;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .big-logo .z { color: var(--accent); }
+    .big-logo .rest { color: var(--text); }
+
+    .big-logo-sub {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: 8px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .visual-accent {
+      position: absolute;
+      bottom: -30px; right: -30px;
+      width: 120px; height: 120px;
+      background: var(--accent);
+      opacity: 0.05;
+      border-radius: 50%;
+    }
+
+    /* ─── LAUNCHES ─── */
+    #lancamentos { background: var(--bg); }
+
+    .launches-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 3rem;
+    }
+
+    .launches-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .product-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(200,240,0,0.1);
+    }
+
+    .product-card.featured {
+      grid-column: span 2;
+    }
+
+    .product-img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--surface2);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-card.featured .product-img {
+      aspect-ratio: 16/9;
+    }
+
+    .product-img-placeholder {
+      font-size: 5rem;
+      opacity: 0.15;
+    }
+
+    .pyva-placeholder {
+      font-size: unset;
+      opacity: 1;
+      z-index: 1;
+      position: relative;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4));
+    }
+
+    .product-real-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      padding: 1.5rem;
+      z-index: 2;
+      transition: transform 0.4s ease;
+    }
+
+    .product-card:hover .product-real-img {
+      transform: scale(1.05) translateY(-4px);
+    }
+
+    .product-thumbs {
+      position: absolute;
+      bottom: 0.75rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      z-index: 3;
+    }
+
+    .thumb {
+      width: 28px; height: 3px;
+      background: rgba(255,255,255,0.25);
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, width 0.2s;
+    }
+
+    .thumb.active {
+      background: var(--accent);
+      width: 40px;
+    }
+
+    .product-img-bg {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, var(--surface2) 0%, #0d0d0d 100%);
+    }
+
+    .product-tag {
+      position: absolute;
+      top: 1rem; left: 1rem;
+      background: var(--accent);
+      color: #080808;
+      font-size: 0.65rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .product-tag.new { background: var(--accent); }
+    .product-tag.hot { background: #ff4444; color: white; }
+    .product-tag.exclusive { background: #8844ff; color: white; }
+
+    .product-info {
+      padding: 1.5rem;
+    }
+
+    .product-brand {
+      font-size: 0.72rem;
+      color: var(--accent);
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 0.35rem;
+    }
+
+    .product-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.5rem;
+    }
+
+    .product-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .product-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .product-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+
+    .product-cta:hover { gap: 0.7rem; }
+
+    .product-badge {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    /* ─── BRANDS ─── */
+    #marcas {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 4rem;
+    }
+
+    .brands-label {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
+    .brands-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-item {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      cursor: default;
+    }
+
+    .brand-item:hover { color: var(--text); }
+
+    /* ─── HOURS ─── */
+    #horarios { background: var(--bg); }
+
+    .hours-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+
+    .hours-table {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .hours-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.1rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.2s;
+    }
+
+    .hours-row:last-child { border-bottom: none; }
+    .hours-row:hover { background: var(--surface2); }
+
+    .hours-row.today { background: rgba(200,240,0,0.05); }
+    .hours-row.today .hours-day { color: var(--accent); }
+
+    .hours-day {
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .hours-time {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .hours-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hours-status.open { color: #44ff88; }
+    .hours-status.closed { color: #ff4444; }
+
+    .hours-status::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .location-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .map-placeholder {
+      height: 200px;
+      background: var(--surface2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .map-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(200,240,0,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(200,240,0,0.05) 1px, transparent 1px);
+      background-size: 30px 30px;
+    }
+
+    .map-pin {
+      position: relative;
+      z-index: 2;
+      font-size: 2.5rem;
+    }
+
+    .map-address {
+      position: relative;
+      z-index: 2;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .location-info {
+      padding: 1.5rem;
+    }
+
+    .location-info h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+
+    .location-info p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.2rem;
+      line-height: 1.6;
+    }
+
+    .location-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+
+    .location-link:hover { gap: 0.8rem; }
+
+    /* ─── INSTAGRAM ─── */
+    #instagram {
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+    }
+
+    .insta-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .insta-handle {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: var(--text);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+
+    .insta-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .insta-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+    }
+
+    .insta-post {
+      aspect-ratio: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      opacity: 0.4;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .insta-post:hover {
+      opacity: 1;
+      border-color: var(--accent);
+    }
+
+    .insta-post-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(200,240,0,0.1);
+      opacity: 0;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .insta-post:hover .insta-post-overlay { opacity: 1; }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      padding: 3rem 4rem 2rem;
+    }
+
+    .footer-top {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.7;
+      margin-top: 1rem;
+      max-width: 280px;
+    }
+
+    .footer-col h4 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .footer-col ul a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: color 0.2s;
+    }
+
+    .footer-col ul a:hover { color: var(--text); }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-bottom p {
+      color: var(--text-muted);
+      font-size: 0.78rem;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .social-btn {
+      width: 34px; height: 34px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .social-btn:hover {
+      border-color: var(--accent);
+      background: rgba(200,240,0,0.1);
+    }
+
+    /* ─── WHATSAPP FLOAT ─── */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 99;
+      background: #25d366;
+      color: white;
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      text-decoration: none;
+      box-shadow: 0 4px 20px rgba(37,211,102,0.4);
+      transition: all 0.2s;
+    }
+
+    .whatsapp-float:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 30px rgba(37,211,102,0.6);
+    }
+
+    /* ─── ANIMATIONS ─── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── DYNAMIC GRIDS ─── */
+    .dynamic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      min-height: 80px;
+    }
+
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+    }
+
+    .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
+    .empty-state p { font-size: 0.9rem; line-height: 1.7; }
+    .empty-state strong { color: var(--accent); }
+
+    /* ─── ADMIN PANEL ─── */
+    #admin-btn {
+      position: fixed;
+      bottom: 5.5rem;
+      right: 2rem;
+      z-index: 200;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.2s;
+    }
+
+    #admin-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    #admin-panel {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+    }
+
+    #admin-panel.open { display: flex; }
+
+    .admin-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 2rem;
+    }
+
+    .admin-box h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.6rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.25rem;
+    }
+
+    .admin-box h2 span { color: var(--accent); }
+
+    .admin-subtitle {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+
+    .admin-section-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .admin-tab {
+      padding: 0.4rem 1rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Barlow', sans-serif;
+    }
+
+    .admin-tab.active, .admin-tab:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #080808;
+    }
+
+    .admin-form { display: flex; flex-direction: column; gap: 1rem; }
+
+    .admin-field label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .admin-field input, .admin-field select, .admin-field textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: 'Barlow', sans-serif;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .admin-field input:focus, .admin-field select:focus, .admin-field textarea:focus {
+      border-color: var(--accent);
+    }
+
+    .admin-field textarea { resize: vertical; min-height: 70px; }
+
+    .admin-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .admin-upload-area:hover { border-color: var(--accent); background: rgba(200,240,0,0.03); }
+
+    .admin-upload-area input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .upload-preview {
+      max-width: 100%;
+      max-height: 120px;
+      border-radius: 8px;
+      display: none;
+      margin: 0 auto 0.5rem;
+      object-fit: contain;
+    }
+
+    .upload-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .upload-text { font-size: 0.82rem; color: var(--text-muted); }
+    .upload-text strong { color: var(--accent); }
+
+    .admin-actions {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .admin-save {
+      flex: 1;
+      background: var(--accent);
+      color: #080808;
+      border: none;
+      border-radius: 8px;
+      padding: 0.8rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .admin-save:hover { background: #e0ff00; }
+
+    .admin-close {
+      background: var(--surface2);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.8rem 1.2rem;
+      font-size: 0.9rem;
+      font-family: 'Barlow', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .admin-close:hover { color: var(--text); border-color: var(--text-muted); }
+
+    .admin-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 1.5rem 0;
+    }
+
+    .admin-products-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .admin-product-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+    }
+
+    .admin-product-item img {
+      width: 48px; height: 48px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: var(--surface);
+    }
+
+    .admin-product-item-info { flex: 1; min-width: 0; }
+
+    .admin-product-item-name {
+      font-weight: 600;
+      font-size: 0.88rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .admin-product-item-brand {
+      font-size: 0.75rem;
+      color: var(--accent);
+    }
+
+    .admin-delete-btn {
+      background: transparent;
+      border: 1px solid #ff4444;
+      color: #ff4444;
+      border-radius: 6px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .admin-delete-btn:hover { background: #ff4444; color: white; }
+
+    .admin-password-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    .admin-password-screen p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .admin-card-del {
+      position: absolute;
+      top: 0.6rem; right: 0.6rem;
+      background: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      width: 28px; height: 28px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    body.admin-mode .admin-card-del { display: flex; }
+    body.admin-mode #admin-btn { border-color: var(--accent); color: var(--accent); }
+
+    /* ─── MOBILE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 1rem 1.5rem; }
+      nav.scrolled { padding: 0.7rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 4rem 1.5rem; }
+      #hero { padding: 0 1.5rem; }
+      .hero-stats { display: none; }
+      .about-grid, .hours-grid { grid-template-columns: 1fr; gap: 2rem; }
+      .launches-grid { grid-template-columns: 1fr; }
+      .product-card.featured { grid-column: span 1; }
+      .insta-grid { grid-template-columns: repeat(3, 1fr); }
+      .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+      .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
+      .brands-grid { gap: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">
+      <div class="logo-icon">Z</div>
+      <div class="logo-text">ZENITH <span>SPORTS</span></div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#sobre">Sobre</a></li>
+      <li><a href="#lancamentos">Lançamentos</a></li>
+      <li><a href="#feminino">Feminino</a></li>
+      <li><a href="#masculino">Masculino</a></li>
+      <li><a href="#outlet">Outlet</a></li>
+      <li><a href="#marcas">Marcas</a></li>
+      <li><a href="#horarios">Horários</a></li>
+      <li><a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="nav-cta">Seguir</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Agudos · SP — Tênis Originais</div>
+      <h1 class="hero-title">
+        <span class="outline">Leve seu</span>
+        <span class="accent">Esporte</span>
+        <span>a sério.</span>
+      </h1>
+      <p class="hero-sub">
+        Tênis esportivos 100% originais das maiores marcas do mundo.
+        Atendimento personalizado e envio para todo o Brasil.
+      </p>
+      <div class="hero-actions">
+        <a href="#lancamentos" class="btn-primary">Ver Lançamentos →</a>
+        <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-ghost">@ Instagram</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">1K+</div>
+        <div class="stat-label">Seguidores</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Originais</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">BR</div>
+        <div class="stat-label">Todo Brasil</div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-section">
+    <div class="marquee-track">
+      <!-- duplicated for infinite loop -->
+      <div class="marquee-item">Tênis Originais <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Envio para todo Brasil <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Lançamentos Exclusivos <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Levando seu Esporte a Sério <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Agudos · SP <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Zenith Sports <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Tênis Originais <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Envio para todo Brasil <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Lançamentos Exclusivos <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Levando seu Esporte a Sério <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Agudos · SP <span class="marquee-dot"></span></div>
+      <div class="marquee-item">Zenith Sports <span class="marquee-dot"></span></div>
+    </div>
+  </div>
+
+  <!-- SOBRE -->
+  <section id="sobre">
+    <div class="about-grid">
+      <div class="about-text fade-in">
+        <div class="section-label">Nossa história</div>
+        <h2 class="section-title">Mais que uma loja,<br>uma missão.</h2>
+        <p>
+          A Zenith Sports nasceu da paixão pelo esporte e pelo estilo. Acreditamos que cada atleta —
+          amador ou profissional — merece calçar o melhor, sem abrir mão da autenticidade.
+        </p>
+        <p>
+          Trabalhamos somente com produtos 100% originais das maiores marcas esportivas do mundo,
+          com atendimento próximo e personalizado aqui em Agudos, SP — e enviamos para todo o Brasil.
+        </p>
+        <div class="about-features">
+          <div class="feature-card">
+            <div class="feature-icon">✅</div>
+            <h4>100% Original</h4>
+            <p>Só vendemos produtos autênticos, com garantia de procedência.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">✈️</div>
+            <h4>Envio Nacional</h4>
+            <p>Enviamos para qualquer cidade do Brasil com segurança.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <h4>Top Marcas</h4>
+            <p>Nike, Adidas, Puma, New Balance e muito mais.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">💬</div>
+            <h4>Atendimento</h4>
+            <p>Suporte próximo e consultivo para encontrar o par ideal.</p>
+          </div>
+        </div>
+      </div>
+      <div class="about-visual fade-in">
+        <div class="visual-card">
+          <div class="big-logo">
+            <span class="z">Z</span><span class="rest">ENITH</span>
+          </div>
+          <div class="big-logo-sub">Sports</div>
+          <div class="visual-accent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LANÇAMENTOS -->
+  <section id="lancamentos">
+    <div class="launches-header fade-in">
+      <div>
+        <div class="section-label">Novidades</div>
+        <h2 class="section-title">Lançamentos em<br>destaque</h2>
+      </div>
+      <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-ghost">Ver todos no Instagram →</a>
+    </div>
+    <div class="launches-grid">
+
+      <div class="product-card featured fade-in">
+        <div class="product-img">
+          <div class="product-img-bg"></div>
+          <img src="assets/43206446_3-030-02.webp" alt="PY-VA Running Shoe" class="product-real-img" onerror="this.style.display='none'" />
+          <div class="product-img-placeholder pyva-placeholder">
+            <svg viewBox="0 0 320 160" width="260" height="130" xmlns="http://www.w3.org/2000/svg">
+              <!-- Sole -->
+              <ellipse cx="160" cy="130" rx="145" ry="22" fill="#e8e0d0" opacity="0.9"/>
+              <!-- Midsole -->
+              <path d="M25 115 Q40 95 80 90 L240 88 Q290 90 300 110 Q295 128 240 132 L60 133 Q30 130 25 115Z" fill="#f0ebe0"/>
+              <!-- Upper body -->
+              <path d="M60 90 Q70 55 110 48 L200 44 Q240 46 260 65 Q270 80 260 90 Z" fill="#f5f0e8"/>
+              <!-- Black design swoosh -->
+              <path d="M90 88 Q100 60 130 52 Q115 70 125 82 Q135 65 155 58 Q140 75 148 87 Z" fill="#1a1a1a" opacity="0.85"/>
+              <!-- Neon sole line -->
+              <path d="M30 126 Q160 136 295 124" stroke="#c8f000" stroke-width="5" fill="none" stroke-linecap="round"/>
+              <!-- Laces -->
+              <line x1="155" y1="50" x2="175" y2="52" stroke="#ccc" stroke-width="2"/>
+              <line x1="152" y1="58" x2="172" y2="60" stroke="#ccc" stroke-width="2"/>
+              <line x1="150" y1="66" x2="170" y2="68" stroke="#ccc" stroke-width="2"/>
+              <!-- Tongue neon accent -->
+              <rect x="158" y="44" width="12" height="6" rx="2" fill="#c8f000" opacity="0.8"/>
+              <!-- PY-VA text -->
+              <text x="120" y="122" font-family="monospace" font-size="8" fill="#888" letter-spacing="2">PY-VA</text>
+            </svg>
+          </div>
+          <div class="product-tag new">Lançamento</div>
+          <!-- thumbnail strip -->
+          <div class="product-thumbs">
+            <div class="thumb active"></div>
+            <div class="thumb"></div>
+            <div class="thumb"></div>
+            <div class="thumb"></div>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">PY-VA</div>
+          <div class="product-name">Runner Pro — Branco / Neon</div>
+          <div class="product-desc">
+            Tênis de corrida de alta performance com design arrojado. Solado neon, cabedal em mesh respirável
+            e detalhes em preto que garantem estilo dentro e fora da pista.
+          </div>
+          <div class="product-footer">
+            <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Consultar disponibilidade →</a>
+            <span class="product-badge">Disponível na loja</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-img">
+          <div class="product-img-bg"></div>
+          <div class="product-img-placeholder">👟</div>
+          <div class="product-tag hot">Hot</div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">Adidas</div>
+          <div class="product-name">Ultraboost 25</div>
+          <div class="product-desc">O favorito dos corredores, agora ainda mais leve e responsivo.</div>
+          <div class="product-footer">
+            <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Ver mais →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-img">
+          <div class="product-img-bg"></div>
+          <div class="product-img-placeholder">👟</div>
+          <div class="product-tag exclusive">Exclusivo</div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">New Balance</div>
+          <div class="product-name">990v6 Classic</div>
+          <div class="product-desc">O clássico que nunca sai de moda. Conforto e estilo americano.</div>
+          <div class="product-footer">
+            <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Ver mais →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card fade-in">
+        <div class="product-img">
+          <div class="product-img-bg"></div>
+          <div class="product-img-placeholder">👟</div>
+          <div class="product-tag new">Novo</div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">Puma</div>
+          <div class="product-name">Nitro Elite 3</div>
+          <div class="product-desc">Tecnologia de ponta para atletas de alta performance.</div>
+          <div class="product-footer">
+            <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Ver mais →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div style="text-align:center; margin-top: 3rem;" class="fade-in">
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+        Estoque sempre atualizado — siga no Instagram para ver os últimos lançamentos em primeira mão.
+      </p>
+      <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-primary">
+        Ver Estoque Completo
+      </a>
+    </div>
+  </section>
+
+  <!-- MARCAS -->
+  <section id="marcas">
+    <p class="brands-label">Marcas que trabalhamos</p>
+    <div class="brands-grid">
+      <div class="brand-item">Nike</div>
+      <div class="brand-item">Mizuno</div>
+      <div class="brand-item">Under Armour</div>
+      <div class="brand-item">Olympikus</div>
+    </div>
+  </section>
+
+  <!-- HORÁRIOS -->
+  <section id="horarios">
+    <div class="hours-grid">
+      <div class="fade-in">
+        <div class="section-label">Funcionamento</div>
+        <h2 class="section-title">Quando<br>estamos abertos</h2>
+        <p style="color: var(--text-muted); margin-top: 1rem; line-height: 1.7; font-size: 0.95rem;">
+          Venha nos visitar em Agudos ou entre em contato pelo Instagram
+          para atendimento online e envio para todo o Brasil.
+        </p>
+        <div style="margin-top: 2rem;">
+          <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-primary">Fale Conosco</a>
+        </div>
+      </div>
+      <div class="fade-in">
+        <div class="hours-table">
+          <div class="hours-row" id="row-seg">
+            <span class="hours-day">Segunda</span>
+            <span class="hours-time">13:00 – 19:00</span>
+          </div>
+          <div class="hours-row" id="row-ter">
+            <span class="hours-day">Terça</span>
+            <span class="hours-time">13:00 – 19:00</span>
+          </div>
+          <div class="hours-row" id="row-qua">
+            <span class="hours-day">Quarta</span>
+            <span class="hours-time">13:00 – 19:00</span>
+          </div>
+          <div class="hours-row" id="row-qui">
+            <span class="hours-day">Quinta</span>
+            <span class="hours-time">13:00 – 19:00</span>
+          </div>
+          <div class="hours-row" id="row-sex">
+            <span class="hours-day">Sexta</span>
+            <span class="hours-time">13:00 – 19:00</span>
+          </div>
+          <div class="hours-row" id="row-sab">
+            <span class="hours-day">Sábado</span>
+            <span class="hours-time">10:00 – 14:00</span>
+          </div>
+          <div class="hours-row" id="row-dom">
+            <span class="hours-day">Domingo</span>
+            <span class="hours-time" style="color: var(--text-muted);">Fechado</span>
+          </div>
+        </div>
+
+        <div class="location-card" style="margin-top: 1.5rem;">
+          <div class="map-placeholder">
+            <div class="map-grid"></div>
+            <div class="map-pin">📍</div>
+            <div class="map-address">Agudos · SP · 17123010</div>
+          </div>
+          <div class="location-info">
+            <h3>Nossa Loja</h3>
+            <p>Rua Arcângelo Napoleone, 127B<br>Agudos – SP, CEP 17123-010</p>
+            <a href="https://maps.google.com/?q=Rua+Arcângelo+Napoleone+127B+Agudos+SP" target="_blank" class="location-link">
+              Abrir no Maps →
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEMININO -->
+  <section id="feminino" style="background: var(--surface); border-top: 1px solid var(--border);">
+    <div class="launches-header fade-in">
+      <div>
+        <div class="section-label">Coleção</div>
+        <h2 class="section-title">Feminino</h2>
+      </div>
+    </div>
+    <div class="dynamic-grid" id="grid-feminino">
+      <div class="empty-state" id="empty-feminino">
+        <div class="empty-icon">👟</div>
+        <p>Nenhum produto ainda.<br>Clique em <strong>Gerenciar Site</strong> para adicionar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MASCULINO -->
+  <section id="masculino" style="background: var(--bg); border-top: 1px solid var(--border);">
+    <div class="launches-header fade-in">
+      <div>
+        <div class="section-label">Coleção</div>
+        <h2 class="section-title">Masculino</h2>
+      </div>
+    </div>
+    <div class="dynamic-grid" id="grid-masculino">
+      <div class="empty-state" id="empty-masculino">
+        <div class="empty-icon">👟</div>
+        <p>Nenhum produto ainda.<br>Clique em <strong>Gerenciar Site</strong> para adicionar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- OUTLET -->
+  <section id="outlet" style="background: var(--surface); border-top: 1px solid var(--border);">
+    <div class="launches-header fade-in">
+      <div>
+        <div class="section-label">Promoções</div>
+        <h2 class="section-title">Outlet</h2>
+      </div>
+    </div>
+    <div class="dynamic-grid" id="grid-outlet">
+      <div class="empty-state" id="empty-outlet">
+        <div class="empty-icon">🏷️</div>
+        <p>Nenhum produto ainda.<br>Clique em <strong>Gerenciar Site</strong> para adicionar.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- INSTAGRAM -->
+  <section id="instagram">
+    <div class="insta-header fade-in">
+      <div>
+        <div class="section-label">Redes Sociais</div>
+        <h2 class="section-title">Siga para não<br>perder nada</h2>
+      </div>
+      <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="insta-handle">
+        <div class="insta-icon">📷</div>
+        @zenithsportsoficial
+      </a>
+    </div>
+    <div class="insta-grid fade-in">
+      <div class="insta-post">
+        👟
+        <div class="insta-post-overlay">Ver →</div>
+      </div>
+      <div class="insta-post">
+        🏃
+        <div class="insta-post-overlay">Ver →</div>
+      </div>
+      <div class="insta-post">
+        ⚡
+        <div class="insta-post-overlay">Ver →</div>
+      </div>
+      <div class="insta-post">
+        🎯
+        <div class="insta-post-overlay">Ver →</div>
+      </div>
+      <div class="insta-post">
+        🔥
+        <div class="insta-post-overlay">Ver →</div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top: 2rem;" class="fade-in">
+      <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-primary">
+        Ver Perfil Completo
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="text-decoration:none;">
+          <div class="logo-icon">Z</div>
+          <div class="logo-text">ZENITH <span>SPORTS</span></div>
+        </a>
+        <p>Levando seu esporte a sério desde o primeiro par. Tênis originais, atendimento próximo e envio para todo o Brasil.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navegação</h4>
+        <ul>
+          <li><a href="#sobre">Sobre nós</a></li>
+          <li><a href="#lancamentos">Lançamentos</a></li>
+          <li><a href="#marcas">Marcas</a></li>
+          <li><a href="#horarios">Horários</a></li>
+          <li><a href="#instagram">Instagram</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contato</h4>
+        <ul>
+          <li><a href="https://www.instagram.com/zenithsportsoficial/" target="_blank">@zenithsportsoficial</a></li>
+          <li><a href="#">Rua Arcângelo Napoleone, 127B</a></li>
+          <li><a href="#">Agudos – SP, 17123-010</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 Zenith Sports. Todos os direitos reservados.</p>
+      <div class="footer-social">
+        <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="social-btn" title="Instagram">📷</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- WHATSAPP FLOAT -->
+  <a href="https://wa.me/message/65CY4ULKYWVTI1" target="_blank" class="whatsapp-float" title="WhatsApp">
+    💬
+  </a>
+
+  <!-- ADMIN BUTTON -->
+  <button id="admin-btn" title="Gerenciar Site" onclick="openAdmin()">⚙️</button>
+
+  <!-- ADMIN PANEL -->
+  <div id="admin-panel">
+    <div class="admin-box">
+
+      <!-- TELA DE SENHA -->
+      <div id="admin-lock">
+        <h2>Gerenciar <span>Site</span></h2>
+        <p class="admin-subtitle">Área exclusiva Zenith Sports</p>
+        <div class="admin-password-screen">
+          <p>Digite a senha para acessar o painel</p>
+          <div class="admin-field">
+            <input type="password" id="admin-pwd" placeholder="Senha..." onkeydown="if(event.key==='Enter') checkPwd()" />
+          </div>
+          <div class="admin-actions">
+            <button class="admin-save" onclick="checkPwd()">Entrar</button>
+            <button class="admin-close" onclick="closeAdmin()">Cancelar</button>
+          </div>
+          <p id="pwd-error" style="color:#ff4444;font-size:0.8rem;display:none;">Senha incorreta.</p>
+        </div>
+      </div>
+
+      <!-- PAINEL PRINCIPAL -->
+      <div id="admin-main" style="display:none;">
+        <h2>Gerenciar <span>Site</span></h2>
+        <p class="admin-subtitle">Adicione ou remova produtos de cada seção</p>
+
+        <!-- ABAS DE SEÇÃO -->
+        <div class="admin-section-tabs">
+          <button class="admin-tab active" onclick="selectSection('lancamentos', this)">Lançamentos</button>
+          <button class="admin-tab" onclick="selectSection('feminino', this)">Feminino</button>
+          <button class="admin-tab" onclick="selectSection('masculino', this)">Masculino</button>
+          <button class="admin-tab" onclick="selectSection('outlet', this)">Outlet</button>
+        </div>
+
+        <!-- FORMULÁRIO DE NOVO PRODUTO -->
+        <div class="admin-form">
+          <div class="admin-field">
+            <label>Foto do Produto</label>
+            <div class="admin-upload-area" id="upload-area">
+              <input type="file" id="product-img-input" accept="image/*" onchange="previewImage(this)" />
+              <img id="upload-preview" class="upload-preview" />
+              <div id="upload-placeholder">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text">Clique ou arraste a foto aqui<br><strong>JPG, PNG, WEBP</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="admin-field">
+            <label>Marca</label>
+            <input type="text" id="product-brand" placeholder="Ex: Nike, Adidas..." />
+          </div>
+          <div class="admin-field">
+            <label>Nome do Produto</label>
+            <input type="text" id="product-name" placeholder="Ex: Air Max 2025..." />
+          </div>
+          <div class="admin-field">
+            <label>Descrição (opcional)</label>
+            <textarea id="product-desc" placeholder="Breve descrição do produto..."></textarea>
+          </div>
+          <div class="admin-field">
+            <label>Tag</label>
+            <select id="product-tag">
+              <option value="new">Novo</option>
+              <option value="hot">Hot</option>
+              <option value="exclusive">Exclusivo</option>
+              <option value="outlet">Outlet</option>
+            </select>
+          </div>
+          <div class="admin-actions">
+            <button class="admin-save" onclick="addProduct()">+ Adicionar Produto</button>
+            <button class="admin-close" onclick="closeAdmin()">Fechar</button>
+          </div>
+        </div>
+
+        <hr class="admin-divider" />
+
+        <!-- LISTA DE PRODUTOS EXISTENTES -->
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:0.75rem;">
+          Produtos nesta seção
+        </div>
+        <div class="admin-products-list" id="admin-products-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ─── NAV SCROLL ───
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ─── FADE IN OBSERVER ───
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ─── HIGHLIGHT TODAY ───
+    const today = new Date().getDay(); // 0=Sun, 1=Mon, ...
+    const rowMap = {
+      1: 'row-seg',
+      2: 'row-ter',
+      3: 'row-qua',
+      4: 'row-qui',
+      5: 'row-sex',
+      6: 'row-sab',
+      0: 'row-dom',
+    };
+    const todayRow = document.getElementById(rowMap[today]);
+    if (todayRow) todayRow.classList.add('today');
+
+    // ─── SMOOTH ANCHOR ───
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    });
+
+    // ─── ADMIN SYSTEM ───
+    const ADMIN_PASSWORD = 'zenith2025';
+    let currentSection = 'lancamentos';
+    let uploadedImageData = null;
+
+    function getProducts(section) {
+      return JSON.parse(localStorage.getItem('zs_' + section) || '[]');
+    }
+
+    function saveProducts(section, arr) {
+      localStorage.setItem('zs_' + section, JSON.stringify(arr));
+    }
+
+    function openAdmin() {
+      document.getElementById('admin-panel').classList.add('open');
+      document.getElementById('admin-pwd').value = '';
+      document.getElementById('pwd-error').style.display = 'none';
+      document.getElementById('admin-lock').style.display = 'block';
+      document.getElementById('admin-main').style.display = 'none';
+      setTimeout(() => document.getElementById('admin-pwd').focus(), 100);
+    }
+
+    function closeAdmin() {
+      document.getElementById('admin-panel').classList.remove('open');
+    }
+
+    function checkPwd() {
+      const val = document.getElementById('admin-pwd').value;
+      if (val === ADMIN_PASSWORD) {
+        document.getElementById('admin-lock').style.display = 'none';
+        document.getElementById('admin-main').style.display = 'block';
+        renderAdminList();
+      } else {
+        document.getElementById('pwd-error').style.display = 'block';
+      }
+    }
+
+    function selectSection(section, btn) {
+      currentSection = section;
+      document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderAdminList();
+    }
+
+    function previewImage(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        uploadedImageData = e.target.result;
+        const preview = document.getElementById('upload-preview');
+        preview.src = uploadedImageData;
+        preview.style.display = 'block';
+        document.getElementById('upload-placeholder').style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addProduct() {
+      const brand = document.getElementById('product-brand').value.trim();
+      const name = document.getElementById('product-name').value.trim();
+      const desc = document.getElementById('product-desc').value.trim();
+      const tag = document.getElementById('product-tag').value;
+
+      if (!name) { alert('Digite o nome do produto.'); return; }
+
+      const product = {
+        id: Date.now(),
+        brand, name, desc, tag,
+        img: uploadedImageData || null
+      };
+
+      const arr = getProducts(currentSection);
+      arr.push(product);
+      saveProducts(currentSection, arr);
+
+      // reset form
+      document.getElementById('product-brand').value = '';
+      document.getElementById('product-name').value = '';
+      document.getElementById('product-desc').value = '';
+      document.getElementById('product-tag').value = 'new';
+      document.getElementById('upload-preview').style.display = 'none';
+      document.getElementById('upload-placeholder').style.display = 'block';
+      document.getElementById('product-img-input').value = '';
+      uploadedImageData = null;
+
+      renderAdminList();
+      renderSection(currentSection);
+    }
+
+    function deleteProduct(section, id) {
+      if (!confirm('Remover este produto?')) return;
+      const arr = getProducts(section).filter(p => p.id !== id);
+      saveProducts(section, arr);
+      renderAdminList();
+      renderSection(section);
+    }
+
+    function renderAdminList() {
+      const list = document.getElementById('admin-products-list');
+      const arr = getProducts(currentSection);
+      if (arr.length === 0) {
+        list.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Nenhum produto nesta seção.</p>';
+        return;
+      }
+      list.innerHTML = arr.map(p => `
+        <div class="admin-product-item">
+          ${p.img ? `<img src="${p.img}" alt="${p.name}" />` : '<div style="width:48px;height:48px;background:var(--surface);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">👟</div>'}
+          <div class="admin-product-item-info">
+            <div class="admin-product-item-brand">${p.brand || '—'}</div>
+            <div class="admin-product-item-name">${p.name}</div>
+          </div>
+          <button class="admin-delete-btn" onclick="deleteProduct('${currentSection}', ${p.id})">✕ Remover</button>
+        </div>
+      `).join('');
+    }
+
+    const tagLabels = { new: 'Novo', hot: 'Hot', exclusive: 'Exclusivo', outlet: 'Outlet' };
+
+    function renderSection(section) {
+      const grid = document.getElementById('grid-' + section);
+      if (!grid) return;
+      const arr = getProducts(section);
+      const emptyEl = document.getElementById('empty-' + section);
+
+      // remove old dynamic cards
+      grid.querySelectorAll('.dyn-card').forEach(c => c.remove());
+
+      if (arr.length === 0) {
+        if (emptyEl) emptyEl.style.display = 'block';
+        return;
+      }
+
+      if (emptyEl) emptyEl.style.display = 'none';
+
+      arr.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'product-card dyn-card fade-in';
+        card.style.position = 'relative';
+        card.innerHTML = `
+          <div class="product-img" style="background:var(--surface2);">
+            ${p.img
+              ? `<img src="${p.img}" alt="${p.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:1rem;transition:transform 0.4s;" />`
+              : '<div style="font-size:4rem;opacity:0.15;">👟</div>'
+            }
+            <div class="product-tag ${p.tag}">${tagLabels[p.tag] || 'Novo'}</div>
+          </div>
+          <div class="product-info">
+            <div class="product-brand">${p.brand || ''}</div>
+            <div class="product-name">${p.name}</div>
+            ${p.desc ? `<div class="product-desc">${p.desc}</div>` : ''}
+            <div class="product-footer">
+              <a href="https://wa.me/message/65CY4ULKYWVTI1" target="_blank" class="product-cta">Consultar →</a>
+            </div>
+          </div>
+        `;
+
+        // observer for fade-in
+        observer.observe(card);
+        grid.appendChild(card);
+      });
+    }
+
+    // fechar ao clicar fora
+    document.getElementById('admin-panel').addEventListener('click', function(e) {
+      if (e.target === this) closeAdmin();
+    });
+
+    // ─── INIT: render all sections ───
+    ['lancamentos', 'feminino', 'masculino', 'outlet'].forEach(renderSection);
+  </script>
+</body>
+</html>

@@ -1068,16 +1068,66 @@
 
     .empty-state {
       grid-column: 1 / -1;
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--text-muted);
-      border: 2px dashed var(--border);
-      border-radius: 16px;
     }
 
     .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.4; }
     .empty-state p { font-size: 0.9rem; line-height: 1.7; }
     .empty-state strong { color: var(--accent); }
+
+    .placeholder-slots {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+
+    .slot-card {
+      aspect-ratio: 3/4;
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+    }
+
+    .slot-card:hover {
+      border-color: var(--accent);
+      background: rgba(200,240,0,0.04);
+      color: var(--accent);
+    }
+
+    .slot-plus {
+      width: 48px; height: 48px;
+      border: 2px dashed currentColor;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 300;
+      transition: all 0.2s;
+    }
+
+    .slot-card:hover .slot-plus {
+      background: rgba(200,240,0,0.1);
+    }
+
+    .slot-card span {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .product-price {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
 
     /* ─── ADMIN PANEL ─── */
     #admin-btn {
@@ -1311,19 +1361,66 @@
     }
 
     .admin-delete-btn {
-      background: transparent;
-      border: 1px solid #ff4444;
-      color: #ff4444;
+      background: #ff4444;
+      border: none;
+      color: white;
       border-radius: 6px;
-      padding: 0.3rem 0.6rem;
+      padding: 0.4rem 0.8rem;
       font-size: 0.8rem;
+      font-weight: 700;
       cursor: pointer;
       font-family: 'Barlow', sans-serif;
       transition: all 0.2s;
       white-space: nowrap;
     }
 
-    .admin-delete-btn:hover { background: #ff4444; color: white; }
+    .admin-delete-btn:hover { background: #cc0000; transform: scale(1.05); }
+
+    /* ─── SIZE GRID ─── */
+    .size-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .size-btn {
+      width: 42px; height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+      transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .size-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    .size-btn.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #080808;
+    }
+
+    .sizes-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .size-pill {
+      background: var(--accent);
+      color: #080808;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
 
     .admin-password-screen {
       display: flex;
@@ -1705,8 +1802,12 @@
     </div>
     <div class="dynamic-grid" id="grid-feminino">
       <div class="empty-state" id="empty-feminino">
-        <div class="empty-icon">👟</div>
-        <p>Nenhum produto ainda.<br>Clique em <strong>Gerenciar Site</strong> para adicionar.</p>
+        <div class="placeholder-slots">
+          <div class="slot-card" onclick="openAdminSection('feminino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('feminino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('feminino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('feminino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1721,8 +1822,12 @@
     </div>
     <div class="dynamic-grid" id="grid-masculino">
       <div class="empty-state" id="empty-masculino">
-        <div class="empty-icon">👟</div>
-        <p>Nenhum produto ainda.<br>Clique em <strong>Gerenciar Site</strong> para adicionar.</p>
+        <div class="placeholder-slots">
+          <div class="slot-card" onclick="openAdminSection('masculino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('masculino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('masculino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('masculino')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1737,8 +1842,12 @@
     </div>
     <div class="dynamic-grid" id="grid-outlet">
       <div class="empty-state" id="empty-outlet">
-        <div class="empty-icon">🏷️</div>
-        <p>Nenhum produto ainda.<br>Clique em <strong>Gerenciar Site</strong> para adicionar.</p>
+        <div class="placeholder-slots">
+          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
+        </div>
       </div>
     </div>
   </section>
@@ -1889,6 +1998,16 @@
             <textarea id="product-desc" placeholder="Breve descrição do produto..."></textarea>
           </div>
           <div class="admin-field">
+            <label>Preço</label>
+            <input type="text" id="product-price" placeholder="Ex: R$ 299,90" />
+          </div>
+          <div class="admin-field">
+            <label>Numerações disponíveis</label>
+            <div class="size-grid" id="size-grid">
+              <!-- gerado pelo JS -->
+            </div>
+          </div>
+          <div class="admin-field">
             <label>Tag</label>
             <select id="product-tag">
               <option value="new">Novo</option>
@@ -1962,6 +2081,30 @@
     const ADMIN_PASSWORD = 'zenith2025';
     let currentSection = 'lancamentos';
     let uploadedImageData = null;
+    let selectedSizes = [];
+
+    // gera botões de numeração 35-45
+    (function buildSizeGrid() {
+      const grid = document.getElementById('size-grid');
+      for (let n = 35; n <= 45; n++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'size-btn';
+        btn.textContent = n;
+        btn.dataset.size = n;
+        btn.onclick = function() {
+          const s = parseInt(this.dataset.size);
+          if (selectedSizes.includes(s)) {
+            selectedSizes = selectedSizes.filter(x => x !== s);
+            this.classList.remove('selected');
+          } else {
+            selectedSizes.push(s);
+            this.classList.add('selected');
+          }
+        };
+        grid.appendChild(btn);
+      }
+    })();
 
     function getProducts(section) {
       return JSON.parse(localStorage.getItem('zs_' + section) || '[]');
@@ -1969,6 +2112,16 @@
 
     function saveProducts(section, arr) {
       localStorage.setItem('zs_' + section, JSON.stringify(arr));
+    }
+
+    function openAdminSection(section) {
+      openAdmin();
+      // após abrir, pré-seleciona a aba (aguarda render)
+      setTimeout(() => {
+        const tabs = document.querySelectorAll('.admin-tab');
+        const map = { lancamentos: 0, feminino: 1, masculino: 2, outlet: 3 };
+        if (tabs[map[section]]) tabs[map[section]].click();
+      }, 50);
     }
 
     function openAdmin() {
@@ -2020,13 +2173,15 @@
       const brand = document.getElementById('product-brand').value.trim();
       const name = document.getElementById('product-name').value.trim();
       const desc = document.getElementById('product-desc').value.trim();
+      const price = document.getElementById('product-price').value.trim();
       const tag = document.getElementById('product-tag').value;
 
       if (!name) { alert('Digite o nome do produto.'); return; }
 
       const product = {
         id: Date.now(),
-        brand, name, desc, tag,
+        brand, name, desc, price, tag,
+        sizes: [...selectedSizes].sort((a,b) => a-b),
         img: uploadedImageData || null
       };
 
@@ -2038,7 +2193,10 @@
       document.getElementById('product-brand').value = '';
       document.getElementById('product-name').value = '';
       document.getElementById('product-desc').value = '';
+      document.getElementById('product-price').value = '';
       document.getElementById('product-tag').value = 'new';
+      selectedSizes = [];
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       document.getElementById('upload-preview').style.display = 'none';
       document.getElementById('upload-placeholder').style.display = 'block';
       document.getElementById('product-img-input').value = '';
@@ -2108,8 +2266,13 @@
           <div class="product-info">
             <div class="product-brand">${p.brand || ''}</div>
             <div class="product-name">${p.name}</div>
+            ${p.price ? `<div class="product-price">${p.price}</div>` : ''}
             ${p.desc ? `<div class="product-desc">${p.desc}</div>` : ''}
-            <div class="product-footer">
+            ${p.sizes && p.sizes.length > 0 ? `
+            <div class="sizes-display">
+              ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
+            </div>` : ''}
+            <div class="product-footer" style="margin-top:0.75rem;">
               <a href="https://wa.me/message/65CY4ULKYWVTI1" target="_blank" class="product-cta">Consultar →</a>
             </div>
           </div>

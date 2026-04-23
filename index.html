@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Zenith Sports — Tênis esportivos 100% originais das maiores marcas. Atendimento em Agudos/SP e envio para todo o Brasil." />
+  <meta name="description" content="Zenith Sports — Tênis esportivos 100% originais. Nike, Mizuno, Under Armour e Olympikus. Atendimento em Agudos/SP e envio para todo o Brasil." />
   <meta name="theme-color" content="#c8f000" />
   <meta property="og:title" content="Zenith Sports | Levando seu esporte a sério" />
-  <meta property="og:description" content="Tênis esportivos 100% originais. Nike, Adidas, Puma, Mizuno e mais. Envio para todo o Brasil." />
+  <meta property="og:description" content="Tênis esportivos 100% originais. Nike, Mizuno, Under Armour e Olympikus. Envio para todo o Brasil." />
   <meta property="og:type" content="website" />
   <title>Zenith Sports | Levando seu esporte a sério</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -67,30 +67,11 @@
       text-decoration: none;
     }
 
-    .logo-icon {
-      width: 42px;
-      height: 42px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: 1.5rem;
-      color: #080808;
-      letter-spacing: -1px;
+    .nav-logo-img {
+      height: 90px;
+      width: auto;
+      display: block;
     }
-
-    .logo-text {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 1.4rem;
-      color: var(--text);
-      letter-spacing: 1px;
-    }
-
-    .logo-text span { color: var(--accent); }
 
     .nav-links {
       display: flex;
@@ -1478,8 +1459,7 @@
   <!-- NAV -->
   <nav id="navbar">
     <a href="#" class="nav-logo">
-      <div class="logo-icon">Z</div>
-      <div class="logo-text">ZENITH <span>SPORTS</span></div>
+      <img src="logo.png.jpeg" alt="Zenith Sports" class="nav-logo-img" />
     </a>
     <ul class="nav-links">
       <li><a href="#sobre">Sobre</a></li>
@@ -1580,7 +1560,7 @@
           <div class="feature-card">
             <div class="feature-icon">🏆</div>
             <h4>Top Marcas</h4>
-            <p>Nike, Adidas, Puma, New Balance e muito mais.</p>
+            <p>Nike, Mizuno, Under Armour e Olympikus.</p>
           </div>
           <div class="feature-card">
             <div class="feature-icon">💬</div>
@@ -1647,8 +1627,8 @@
           </div>
         </div>
         <div class="product-info">
-          <div class="product-brand">PY-VA</div>
-          <div class="product-name">Runner Pro — Branco / Neon</div>
+          <div class="product-brand">Nike</div>
+          <div class="product-name">Pegasus 41 — Branco / Neon</div>
           <div class="product-desc">
             Tênis de corrida de alta performance com design arrojado. Solado neon, cabedal em mesh respirável
             e detalhes em preto que garantem estilo dentro e fora da pista.
@@ -1667,8 +1647,8 @@
           <div class="product-tag hot">Hot</div>
         </div>
         <div class="product-info">
-          <div class="product-brand">Adidas</div>
-          <div class="product-name">Ultraboost 25</div>
+          <div class="product-brand">Nike</div>
+          <div class="product-name">Air Max 2025</div>
           <div class="product-desc">O favorito dos corredores, agora ainda mais leve e responsivo.</div>
           <div class="product-footer">
             <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Ver mais →</a>
@@ -1683,9 +1663,9 @@
           <div class="product-tag exclusive">Exclusivo</div>
         </div>
         <div class="product-info">
-          <div class="product-brand">New Balance</div>
-          <div class="product-name">990v6 Classic</div>
-          <div class="product-desc">O clássico que nunca sai de moda. Conforto e estilo americano.</div>
+          <div class="product-brand">Mizuno</div>
+          <div class="product-name">Wave Prophecy 13</div>
+          <div class="product-desc">Amortecimento premium e estabilidade para longas distâncias.</div>
           <div class="product-footer">
             <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Ver mais →</a>
           </div>
@@ -1699,8 +1679,8 @@
           <div class="product-tag new">Novo</div>
         </div>
         <div class="product-info">
-          <div class="product-brand">Puma</div>
-          <div class="product-name">Nitro Elite 3</div>
+          <div class="product-brand">Under Armour</div>
+          <div class="product-name">HOVR Sonic 6</div>
           <div class="product-desc">Tecnologia de ponta para atletas de alta performance.</div>
           <div class="product-footer">
             <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="product-cta">Ver mais →</a>
@@ -1901,8 +1881,7 @@
     <div class="footer-top">
       <div class="footer-brand">
         <a href="#" class="nav-logo" style="text-decoration:none;">
-          <div class="logo-icon">Z</div>
-          <div class="logo-text">ZENITH <span>SPORTS</span></div>
+          <img src="logo.png.jpeg" alt="Zenith Sports" class="nav-logo-img" />
         </a>
         <p>Levando seu esporte a sério desde o primeiro par. Tênis originais, atendimento próximo e envio para todo o Brasil.</p>
       </div>
@@ -2267,13 +2246,20 @@
             <div class="product-tag ${p.tag}">${tagLabels[p.tag] || 'Novo'}</div>
           </div>
           <div class="product-info">
-            <div class="product-brand">${p.brand || ''}</div>
+            ${p.brand ? `<div class="product-brand">${p.brand}</div>` : ''}
             <div class="product-name">${p.name}</div>
-            ${p.price ? `<div class="product-price">${p.price}</div>` : ''}
             ${p.desc ? `<div class="product-desc">${p.desc}</div>` : ''}
+            ${p.price ? `
+            <div style="margin-top:0.5rem;">
+              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Preço</span>
+              <div class="product-price" style="margin-top:2px;">${p.price}</div>
+            </div>` : ''}
             ${p.sizes && p.sizes.length > 0 ? `
-            <div class="sizes-display">
-              ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
+            <div style="margin-top:0.6rem;">
+              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Numeração</span>
+              <div class="sizes-display" style="margin-top:4px;">
+                ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
+              </div>
             </div>` : ''}
             <div class="product-footer" style="margin-top:0.75rem;">
               <a href="https://wa.me/message/65CY4ULKYWVTI1" target="_blank" class="product-cta">Consultar →</a>

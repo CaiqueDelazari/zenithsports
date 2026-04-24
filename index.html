@@ -13,11 +13,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,700&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <style>
+    html {
+      background: linear-gradient(to bottom,
+        #080808 0%,
+        #070d07 25%,
+        #081408 50%,
+        #091c09 70%,
+        #0c2610 85%,
+        #102e14 100%
+      );
+      background-attachment: fixed;
+    }
+
     :root {
       --accent: #c8f000;
       --accent-dim: #9abb00;
-      --bg: #080808;
-      --surface: #111111;
+      --bg: transparent;
+      --surface: rgba(17,17,17,0.92);
       --surface2: #1a1a1a;
       --border: #222222;
       --text: #f0f0f0;
@@ -1479,7 +1491,7 @@
       position: relative;
       cursor: pointer;
       width: 480px;
-      height: 310px;
+      height: 460px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -1562,6 +1574,61 @@
       width: 18px;
       height: 1px;
       background: rgba(136,136,136,0.35);
+    }
+
+    .hero-shoe-img-wrap {
+      position: relative;
+      width: 430px;
+      height: 430px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      mask-image: radial-gradient(ellipse 88% 88% at 52% 52%, black 38%, transparent 78%);
+      -webkit-mask-image: radial-gradient(ellipse 88% 88% at 52% 52%, black 38%, transparent 78%);
+    }
+
+    .hero-shoe-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: grayscale(1) contrast(1.2) brightness(1.08);
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+      pointer-events: none;
+    }
+
+    .hero-shoe-brand {
+      position: absolute;
+      bottom: 24%;
+      left: 10%;
+      pointer-events: none;
+      line-height: 1;
+    }
+
+    .hero-shoe-brand-z {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 2.6rem;
+      color: #fff;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 24px rgba(200,240,0,0.7),
+        0 0 60px rgba(200,240,0,0.3),
+        0 2px 8px rgba(0,0,0,0.9);
+    }
+
+    .hero-shoe-brand-s {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #c8f000;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      text-shadow: 0 0 18px rgba(200,240,0,0.9), 0 0 40px rgba(200,240,0,0.4);
     }
 
     /* ─── 3D SHOE (horários) ─── */
@@ -1695,104 +1762,13 @@
       <div class="shoe-scene" id="shoe-scene">
         <div class="shoe-float" id="shoe-float">
           <div class="shoe-tilt" id="shoe-tilt">
-            <svg viewBox="0 0 500 290" width="470" height="272" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <linearGradient id="hUpper" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%"   stop-color="#ffffff"/>
-                  <stop offset="55%"  stop-color="#f0ebe0"/>
-                  <stop offset="100%" stop-color="#ddd5c2"/>
-                </linearGradient>
-                <linearGradient id="hMid" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%"   stop-color="#f5f0e8"/>
-                  <stop offset="100%" stop-color="#c8bfaa"/>
-                </linearGradient>
-                <linearGradient id="hNeon" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%"   stop-color="#c8f000"/>
-                  <stop offset="50%"  stop-color="#e4ff20"/>
-                  <stop offset="100%" stop-color="#c8f000"/>
-                </linearGradient>
-                <filter id="hGlw" x="-40%" y="-40%" width="180%" height="180%">
-                  <feGaussianBlur stdDeviation="5" result="b"/>
-                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <filter id="hSGlw" x="-80%" y="-80%" width="260%" height="260%">
-                  <feGaussianBlur stdDeviation="14"/>
-                </filter>
-              </defs>
-
-              <!-- Ground shadow -->
-              <ellipse cx="250" cy="278" rx="215" ry="14" fill="#c8f000" opacity="0.12"/>
-
-              <!-- Outsole -->
-              <path d="M40 218 Q58 240 118 247 L385 245 Q448 243 462 222 Q465 208 446 204 L60 204 Q42 208 40 218Z" fill="#080808"/>
-              <!-- Outsole segments -->
-              <line x1="115" y1="204" x2="112" y2="246" stroke="#161616" stroke-width="2"/>
-              <line x1="190" y1="203" x2="187" y2="246" stroke="#161616" stroke-width="2"/>
-              <line x1="265" y1="203" x2="262" y2="246" stroke="#161616" stroke-width="2"/>
-              <line x1="340" y1="203" x2="338" y2="245" stroke="#161616" stroke-width="2"/>
-
-              <!-- Midsole -->
-              <path d="M46 204 Q70 178 128 170 L376 168 Q440 170 455 194 Q458 207 445 205 L60 205 Q48 203 46 204Z" fill="url(#hMid)"/>
-
-              <!-- Neon glow soft -->
-              <path d="M52 196 Q250 208 450 194" stroke="#c8f000" stroke-width="16" fill="none" stroke-linecap="round" opacity="0.18" filter="url(#hSGlw)"/>
-              <!-- Neon stripe -->
-              <path d="M52 196 Q250 208 450 194" stroke="url(#hNeon)" stroke-width="7" fill="none" stroke-linecap="round" filter="url(#hGlw)"/>
-              <!-- Neon subtle second -->
-              <path d="M58 190 Q250 200 446 188" stroke="#c8f000" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.32"/>
-
-              <!-- Heel counter -->
-              <path d="M375 84 Q418 88 434 122 Q445 154 436 170 L420 170 Q430 155 422 126 Q412 97 378 88 Z" fill="#ddd6c5"/>
-              <path d="M380 88 Q412 92 422 122 Q432 150 425 168 L418 167 Q426 146 417 120 Q408 96 382 91 Z" fill="#cdc6b3"/>
-              <!-- Heel neon accent -->
-              <path d="M424 130 Q437 157 430 170" stroke="#c8f000" stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#hGlw)"/>
-
-              <!-- Upper main body -->
-              <path d="M90 170 Q100 112 160 88 L310 80 Q388 82 416 128 Q430 157 420 170 Z" fill="url(#hUpper)"/>
-              <!-- Side panel -->
-              <path d="M142 168 Q158 128 200 108 L312 82 Q374 84 408 120 Q418 143 410 168 Z" fill="#e6e0d4" opacity="0.55"/>
-
-              <!-- Ankle collar curve -->
-              <path d="M375 84 Q398 78 418 94 Q430 104 432 122" stroke="#ccc5b0" stroke-width="3" fill="none" stroke-linecap="round"/>
-
-              <!-- Toe box -->
-              <path d="M40 218 Q44 193 90 170 L105 172 Q72 190 62 218 Z" fill="#f0ebe1"/>
-              <path d="M58 170 Q65 153 93 146 Q76 158 72 170 Z" fill="#e4ddd0"/>
-
-              <!-- Tongue -->
-              <path d="M218 87 Q230 76 248 80 L255 170 Q246 175 238 174 Q228 172 222 167 Z" fill="#f5f0e8"/>
-              <path d="M232 82 Q244 78 250 81 L252 112 Q244 110 236 109 Z" fill="white" opacity="0.48"/>
-              <!-- Tongue tag neon -->
-              <rect x="222" y="74" width="27" height="12" rx="4" fill="#c8f000" filter="url(#hGlw)"/>
-              <text x="227" y="84" font-family="monospace" font-size="7.5" fill="#080808" font-weight="900" letter-spacing="0.5">ZS</text>
-
-              <!-- Laces -->
-              <line x1="230" y1="96"  x2="266" y2="94"  stroke="#b0a28e" stroke-width="3"   stroke-linecap="round"/>
-              <line x1="226" y1="108" x2="262" y2="106" stroke="#b0a28e" stroke-width="3"   stroke-linecap="round"/>
-              <line x1="224" y1="120" x2="260" y2="118" stroke="#b0a28e" stroke-width="3"   stroke-linecap="round"/>
-              <line x1="222" y1="132" x2="258" y2="130" stroke="#b0a28e" stroke-width="2.5" stroke-linecap="round"/>
-              <line x1="221" y1="144" x2="257" y2="142" stroke="#b0a28e" stroke-width="2.5" stroke-linecap="round"/>
-              <line x1="221" y1="156" x2="257" y2="154" stroke="#b0a28e" stroke-width="2"   stroke-linecap="round"/>
-              <!-- Eyelets -->
-              <circle cx="230" cy="96"  r="3.5" fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
-              <circle cx="266" cy="94"  r="3.5" fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
-              <circle cx="226" cy="108" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
-              <circle cx="262" cy="106" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
-              <circle cx="224" cy="120" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
-              <circle cx="260" cy="118" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
-
-              <!-- Design mark -->
-              <path d="M105 168 Q120 130 162 108 Q138 134 142 160 Q158 128 190 110 Q164 138 166 165 Z" fill="#111" opacity="0.87"/>
-              <path d="M168 165 Q182 132 222 110 Q198 138 200 164 Z" fill="#1a1a1a" opacity="0.62"/>
-
-              <!-- ZENITH brand -->
-              <text x="310" y="160" font-family="'Barlow Condensed',sans-serif" font-size="14" fill="#999" letter-spacing="3.5" font-weight="900" opacity="0.6">ZENITH</text>
-
-              <!-- Highlights -->
-              <path d="M190 96 Q258 86 330 92 Q295 88 255 88 Q228 88 190 96Z" fill="white" opacity="0.26"/>
-              <path d="M150 130 Q198 112 242 116 Q212 114 166 132Z" fill="white" opacity="0.16"/>
-              <path d="M400 104 Q418 102 426 116" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.3"/>
-            </svg>
+            <div class="hero-shoe-img-wrap">
+              <img src="hero-shoe.png.png" alt="Zenith Sports sneaker" class="hero-shoe-img" draggable="false" />
+              <div class="hero-shoe-brand">
+                <span class="hero-shoe-brand-z">ZENITH</span>
+                <span class="hero-shoe-brand-s">SPORTS</span>
+              </div>
+            </div>
           </div>
         </div>
         <div class="shoe-ground-glow"></div>

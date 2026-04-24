@@ -601,6 +601,38 @@
       width: 40px;
     }
 
+    .card-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 4;
+      background: rgba(8,8,8,0.7);
+      border: 1px solid rgba(200,240,0,0.35);
+      color: var(--accent);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      opacity: 0;
+      transition: opacity 0.2s, background 0.2s, transform 0.2s;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .card-arrow.left  { left: 0.5rem; }
+    .card-arrow.right { right: 0.5rem; }
+
+    .card-arrow:hover {
+      background: var(--accent);
+      color: #080808;
+    }
+
+    .product-card:hover .card-arrow { opacity: 1; }
+
     .product-img-bg {
       position: absolute;
       inset: 0;
@@ -2564,6 +2596,8 @@
             }
             <div class="product-tag ${p.tag}">${tagLabels[p.tag] || 'Novo'}</div>
             ${imgs.length > 1 ? `
+            <div class="card-arrow left"  onclick="stepImg(${p.id},-1,event)">&#8249;</div>
+            <div class="card-arrow right" onclick="stepImg(${p.id}, 1,event)">&#8250;</div>
             <div class="product-thumbs">
               ${imgs.map((_, i) => `<div class="thumb${i===0?' active':''}" data-pid="${p.id}" data-idx="${i}" onclick="switchImg(${p.id},${i})"></div>`).join('')}
             </div>` : ''}
@@ -2606,6 +2640,17 @@
       document.querySelectorAll(`.thumb[data-pid="${pid}"]`).forEach((t, i) => {
         t.classList.toggle('active', i === idx);
       });
+    }
+
+    function stepImg(pid, dir, e) {
+      if (e) e.stopPropagation();
+      const imgs = (window._prodImgs || {})[pid];
+      if (!imgs || imgs.length < 2) return;
+      const thumbs = document.querySelectorAll(`.thumb[data-pid="${pid}"]`);
+      let cur = 0;
+      thumbs.forEach((t, i) => { if (t.classList.contains('active')) cur = i; });
+      const next = (cur + dir + imgs.length) % imgs.length;
+      switchImg(pid, next);
     }
 
     // fechar ao clicar fora

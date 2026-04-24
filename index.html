@@ -106,9 +106,11 @@
       min-height: 100vh;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       position: relative;
       overflow: hidden;
       padding: 0 4rem;
+      gap: 2rem;
     }
 
     .hero-bg {
@@ -132,7 +134,8 @@
     .hero-content {
       position: relative;
       z-index: 2;
-      max-width: 700px;
+      max-width: 560px;
+      flex-shrink: 0;
     }
 
     .hero-badge {
@@ -1436,7 +1439,132 @@
     body.admin-mode .admin-card-del { display: flex; }
     body.admin-mode #admin-btn { border-color: var(--accent); color: var(--accent); }
 
-    /* ─── 3D SHOE ─── */
+    /* ─── HERO VISUAL SHOE ─── */
+    .hero-visual {
+      position: relative;
+      z-index: 2;
+      flex-shrink: 0;
+      width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shoe-rings {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .shoe-ring {
+      position: absolute;
+      border: 1px solid rgba(200,240,0,0.12);
+      border-radius: 50%;
+      animation: ringPulseHero 4s ease-in-out infinite;
+    }
+    .shoe-ring.r1 { width: 220px; height: 220px; animation-delay: 0s; }
+    .shoe-ring.r2 { width: 340px; height: 340px; animation-delay: 1.3s; }
+    .shoe-ring.r3 { width: 460px; height: 460px; animation-delay: 2.6s; }
+
+    @keyframes ringPulseHero {
+      0%,100% { transform: scale(0.92); opacity: 0.22; }
+      50%      { transform: scale(1.04); opacity: 0.07; }
+    }
+
+    .shoe-scene {
+      position: relative;
+      cursor: pointer;
+      width: 480px;
+      height: 310px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shoe-float {
+      animation: shoeHeroFloat 3.5s ease-in-out infinite;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+
+    @keyframes shoeHeroFloat {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-22px); }
+    }
+
+    .shoe-float.clicked {
+      animation: shoeHeroSpin 0.7s cubic-bezier(.36,.07,.19,.97),
+                 shoeHeroFloat 3.5s ease-in-out 0.7s infinite;
+    }
+
+    @keyframes shoeHeroSpin {
+      0%   { transform: translateY(0) rotateY(0deg) scale(1); }
+      35%  { transform: translateY(-18px) rotateY(180deg) scale(1.06); }
+      65%  { transform: translateY(-12px) rotateY(340deg) scale(1.03); }
+      100% { transform: translateY(0) rotateY(360deg) scale(1); }
+    }
+
+    .shoe-tilt {
+      transform-style: preserve-3d;
+      transition: transform 0.1s ease-out;
+      filter: drop-shadow(0 28px 56px rgba(200,240,0,0.28))
+              drop-shadow(0 8px 20px rgba(0,0,0,0.6));
+    }
+
+    .shoe-ground-glow {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 55%;
+      height: 24px;
+      background: radial-gradient(ellipse, rgba(200,240,0,0.55) 0%, transparent 70%);
+      filter: blur(10px);
+      animation: groundGlowHero 3.5s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes groundGlowHero {
+      0%,100% { opacity: 0.8; transform: translateX(-50%) scaleX(1); }
+      50%      { opacity: 0.3; transform: translateX(-50%) scaleX(0.6); }
+    }
+
+    .shoe-particle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particleBurstHero 0.85s ease-out forwards;
+    }
+
+    @keyframes particleBurstHero {
+      0%   { opacity: 1; transform: translate(0,0) scale(1); }
+      100% { opacity: 0; transform: translate(var(--dx),var(--dy)) scale(0); }
+    }
+
+    .shoe-hint {
+      font-size: 0.6rem;
+      color: rgba(136,136,136,0.55);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      margin-top: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .shoe-hint::before, .shoe-hint::after {
+      content: '';
+      display: block;
+      width: 18px;
+      height: 1px;
+      background: rgba(136,136,136,0.35);
+    }
+
+    /* ─── 3D SHOE (horários) ─── */
     .shoe-3d-scene {
       width: 100%;
       height: 100%;
@@ -1505,6 +1633,8 @@
       section { padding: 4rem 1.5rem; }
       #hero { padding: 0 1.5rem; }
       .hero-stats { display: none; }
+      .hero-visual { display: none; }
+      .hero-content { max-width: 100%; }
       .about-grid, .hours-grid { grid-template-columns: 1fr; gap: 2rem; }
       .launches-grid { grid-template-columns: 1fr; }
       .product-card.featured { grid-column: span 1; }
@@ -1554,6 +1684,122 @@
         <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-ghost">@ Instagram</a>
       </div>
     </div>
+
+    <!-- HERO 3D SHOE -->
+    <div class="hero-visual">
+      <div class="shoe-rings">
+        <div class="shoe-ring r1"></div>
+        <div class="shoe-ring r2"></div>
+        <div class="shoe-ring r3"></div>
+      </div>
+      <div class="shoe-scene" id="shoe-scene">
+        <div class="shoe-float" id="shoe-float">
+          <div class="shoe-tilt" id="shoe-tilt">
+            <svg viewBox="0 0 500 290" width="470" height="272" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="hUpper" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%"   stop-color="#ffffff"/>
+                  <stop offset="55%"  stop-color="#f0ebe0"/>
+                  <stop offset="100%" stop-color="#ddd5c2"/>
+                </linearGradient>
+                <linearGradient id="hMid" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%"   stop-color="#f5f0e8"/>
+                  <stop offset="100%" stop-color="#c8bfaa"/>
+                </linearGradient>
+                <linearGradient id="hNeon" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%"   stop-color="#c8f000"/>
+                  <stop offset="50%"  stop-color="#e4ff20"/>
+                  <stop offset="100%" stop-color="#c8f000"/>
+                </linearGradient>
+                <filter id="hGlw" x="-40%" y="-40%" width="180%" height="180%">
+                  <feGaussianBlur stdDeviation="5" result="b"/>
+                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="hSGlw" x="-80%" y="-80%" width="260%" height="260%">
+                  <feGaussianBlur stdDeviation="14"/>
+                </filter>
+              </defs>
+
+              <!-- Ground shadow -->
+              <ellipse cx="250" cy="278" rx="215" ry="14" fill="#c8f000" opacity="0.12"/>
+
+              <!-- Outsole -->
+              <path d="M40 218 Q58 240 118 247 L385 245 Q448 243 462 222 Q465 208 446 204 L60 204 Q42 208 40 218Z" fill="#080808"/>
+              <!-- Outsole segments -->
+              <line x1="115" y1="204" x2="112" y2="246" stroke="#161616" stroke-width="2"/>
+              <line x1="190" y1="203" x2="187" y2="246" stroke="#161616" stroke-width="2"/>
+              <line x1="265" y1="203" x2="262" y2="246" stroke="#161616" stroke-width="2"/>
+              <line x1="340" y1="203" x2="338" y2="245" stroke="#161616" stroke-width="2"/>
+
+              <!-- Midsole -->
+              <path d="M46 204 Q70 178 128 170 L376 168 Q440 170 455 194 Q458 207 445 205 L60 205 Q48 203 46 204Z" fill="url(#hMid)"/>
+
+              <!-- Neon glow soft -->
+              <path d="M52 196 Q250 208 450 194" stroke="#c8f000" stroke-width="16" fill="none" stroke-linecap="round" opacity="0.18" filter="url(#hSGlw)"/>
+              <!-- Neon stripe -->
+              <path d="M52 196 Q250 208 450 194" stroke="url(#hNeon)" stroke-width="7" fill="none" stroke-linecap="round" filter="url(#hGlw)"/>
+              <!-- Neon subtle second -->
+              <path d="M58 190 Q250 200 446 188" stroke="#c8f000" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.32"/>
+
+              <!-- Heel counter -->
+              <path d="M375 84 Q418 88 434 122 Q445 154 436 170 L420 170 Q430 155 422 126 Q412 97 378 88 Z" fill="#ddd6c5"/>
+              <path d="M380 88 Q412 92 422 122 Q432 150 425 168 L418 167 Q426 146 417 120 Q408 96 382 91 Z" fill="#cdc6b3"/>
+              <!-- Heel neon accent -->
+              <path d="M424 130 Q437 157 430 170" stroke="#c8f000" stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#hGlw)"/>
+
+              <!-- Upper main body -->
+              <path d="M90 170 Q100 112 160 88 L310 80 Q388 82 416 128 Q430 157 420 170 Z" fill="url(#hUpper)"/>
+              <!-- Side panel -->
+              <path d="M142 168 Q158 128 200 108 L312 82 Q374 84 408 120 Q418 143 410 168 Z" fill="#e6e0d4" opacity="0.55"/>
+
+              <!-- Ankle collar curve -->
+              <path d="M375 84 Q398 78 418 94 Q430 104 432 122" stroke="#ccc5b0" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+              <!-- Toe box -->
+              <path d="M40 218 Q44 193 90 170 L105 172 Q72 190 62 218 Z" fill="#f0ebe1"/>
+              <path d="M58 170 Q65 153 93 146 Q76 158 72 170 Z" fill="#e4ddd0"/>
+
+              <!-- Tongue -->
+              <path d="M218 87 Q230 76 248 80 L255 170 Q246 175 238 174 Q228 172 222 167 Z" fill="#f5f0e8"/>
+              <path d="M232 82 Q244 78 250 81 L252 112 Q244 110 236 109 Z" fill="white" opacity="0.48"/>
+              <!-- Tongue tag neon -->
+              <rect x="222" y="74" width="27" height="12" rx="4" fill="#c8f000" filter="url(#hGlw)"/>
+              <text x="227" y="84" font-family="monospace" font-size="7.5" fill="#080808" font-weight="900" letter-spacing="0.5">ZS</text>
+
+              <!-- Laces -->
+              <line x1="230" y1="96"  x2="266" y2="94"  stroke="#b0a28e" stroke-width="3"   stroke-linecap="round"/>
+              <line x1="226" y1="108" x2="262" y2="106" stroke="#b0a28e" stroke-width="3"   stroke-linecap="round"/>
+              <line x1="224" y1="120" x2="260" y2="118" stroke="#b0a28e" stroke-width="3"   stroke-linecap="round"/>
+              <line x1="222" y1="132" x2="258" y2="130" stroke="#b0a28e" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="221" y1="144" x2="257" y2="142" stroke="#b0a28e" stroke-width="2.5" stroke-linecap="round"/>
+              <line x1="221" y1="156" x2="257" y2="154" stroke="#b0a28e" stroke-width="2"   stroke-linecap="round"/>
+              <!-- Eyelets -->
+              <circle cx="230" cy="96"  r="3.5" fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
+              <circle cx="266" cy="94"  r="3.5" fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
+              <circle cx="226" cy="108" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
+              <circle cx="262" cy="106" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
+              <circle cx="224" cy="120" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
+              <circle cx="260" cy="118" r="3"   fill="none" stroke="#8a7d6c" stroke-width="1.5"/>
+
+              <!-- Design mark -->
+              <path d="M105 168 Q120 130 162 108 Q138 134 142 160 Q158 128 190 110 Q164 138 166 165 Z" fill="#111" opacity="0.87"/>
+              <path d="M168 165 Q182 132 222 110 Q198 138 200 164 Z" fill="#1a1a1a" opacity="0.62"/>
+
+              <!-- ZENITH brand -->
+              <text x="310" y="160" font-family="'Barlow Condensed',sans-serif" font-size="14" fill="#999" letter-spacing="3.5" font-weight="900" opacity="0.6">ZENITH</text>
+
+              <!-- Highlights -->
+              <path d="M190 96 Q258 86 330 92 Q295 88 255 88 Q228 88 190 96Z" fill="white" opacity="0.26"/>
+              <path d="M150 130 Q198 112 242 116 Q212 114 166 132Z" fill="white" opacity="0.16"/>
+              <path d="M400 104 Q418 102 426 116" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.3"/>
+            </svg>
+          </div>
+        </div>
+        <div class="shoe-ground-glow"></div>
+      </div>
+      <div class="shoe-hint">Clique para interagir</div>
+    </div>
+
     <div class="hero-stats">
       <div class="stat">
         <div class="stat-num">1K+</div>
@@ -2341,6 +2587,54 @@
     document.getElementById('admin-panel').addEventListener('click', function(e) {
       if (e.target === this) closeAdmin();
     });
+
+    // ─── HERO SHOE 3D INTERACTION ───
+    (function() {
+      const scene    = document.getElementById('shoe-scene');
+      const floatEl  = document.getElementById('shoe-float');
+      const tiltEl   = document.getElementById('shoe-tilt');
+      if (!scene) return;
+
+      // Mouse parallax tilt
+      scene.addEventListener('mousemove', (e) => {
+        const r  = scene.getBoundingClientRect();
+        const rx = ((e.clientY - r.top  - r.height/2) / (r.height/2)) * -12;
+        const ry = ((e.clientX - r.left - r.width /2) / (r.width /2)) *  20;
+        tiltEl.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+      });
+
+      scene.addEventListener('mouseleave', () => {
+        tiltEl.style.transition = 'transform 0.55s ease';
+        tiltEl.style.transform  = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
+        setTimeout(() => tiltEl.style.transition = 'transform 0.1s ease-out', 560);
+      });
+
+      // Click: particles + spin
+      scene.addEventListener('click', (e) => {
+        const r  = scene.getBoundingClientRect();
+        const ox = e.clientX - r.left;
+        const oy = e.clientY - r.top;
+        const palette = ['#c8f000','#e0ff00','#ffffff','#c8f000','#aadd00','#ffff88'];
+
+        for (let i = 0; i < 22; i++) {
+          const p     = document.createElement('div');
+          p.className = 'shoe-particle';
+          const ang   = (i / 22) * Math.PI * 2 + Math.random() * 0.3;
+          const dist  = 55 + Math.random() * 110;
+          const size  = 3 + Math.random() * 5;
+          p.style.cssText = `left:${ox}px;top:${oy}px;width:${size}px;height:${size}px;
+            background:${palette[i % palette.length]};
+            --dx:${Math.cos(ang)*dist}px;--dy:${Math.sin(ang)*dist}px;`;
+          scene.appendChild(p);
+          setTimeout(() => p.remove(), 900);
+        }
+
+        floatEl.classList.remove('clicked');
+        void floatEl.offsetWidth;
+        floatEl.classList.add('clicked');
+        floatEl.addEventListener('animationend', () => floatEl.classList.remove('clicked'), { once: true });
+      });
+    })();
 
     // ─── 3D SHOE CLICK ───
     let shoeState = 0; // 0=normal 1=fast 2=slow

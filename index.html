@@ -1591,7 +1591,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
-      filter: grayscale(1) contrast(1.2) brightness(1.08);
+      filter: grayscale(0.12) hue-rotate(198deg) saturate(1.85) contrast(1.12) brightness(0.88);
       display: block;
       user-select: none;
       -webkit-user-drag: none;
@@ -1629,6 +1629,56 @@
       letter-spacing: 8px;
       text-transform: uppercase;
       text-shadow: 0 0 18px rgba(200,240,0,0.9), 0 0 40px rgba(200,240,0,0.4);
+    }
+
+    /* ─── ADMIN 3 FOTOS ─── */
+    .admin-photos-row {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    .admin-photo-slot {
+      flex: 1;
+      aspect-ratio: 1;
+      background: var(--surface2);
+      border: 1.5px dashed var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .admin-photo-slot:hover { border-color: var(--accent); background: rgba(200,240,0,0.04); }
+    .admin-photo-slot.filled { border-color: var(--accent); border-style: solid; }
+
+    .pslot-ph {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      pointer-events: none;
+    }
+
+    .pslot-ph span {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .pslot-preview {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 8px;
+      display: none;
     }
 
     /* ─── 3D SHOE (horários) ─── */
@@ -2243,13 +2293,22 @@
         <!-- FORMULÁRIO DE NOVO PRODUTO -->
         <div class="admin-form">
           <div class="admin-field">
-            <label>Foto do Produto</label>
-            <div class="admin-upload-area" id="upload-area">
-              <input type="file" id="product-img-input" accept="image/*" onchange="previewImage(this)" />
-              <img id="upload-preview" class="upload-preview" />
-              <div id="upload-placeholder">
-                <div class="upload-icon">📷</div>
-                <div class="upload-text">Clique ou arraste a foto aqui<br><strong>JPG, PNG, WEBP</strong></div>
+            <label>Fotos do Produto (até 3)</label>
+            <div class="admin-photos-row">
+              <div class="admin-photo-slot" id="pslot-0" onclick="document.getElementById('pimg-0').click()">
+                <input type="file" id="pimg-0" accept="image/*" style="display:none" onchange="previewSlot(this,0)" />
+                <img class="pslot-preview" id="pprev-0" />
+                <div class="pslot-ph" id="pph-0"><div style="font-size:1.4rem">📷</div><span>Foto 1</span></div>
+              </div>
+              <div class="admin-photo-slot" id="pslot-1" onclick="document.getElementById('pimg-1').click()">
+                <input type="file" id="pimg-1" accept="image/*" style="display:none" onchange="previewSlot(this,1)" />
+                <img class="pslot-preview" id="pprev-1" />
+                <div class="pslot-ph" id="pph-1"><div style="font-size:1.4rem">📷</div><span>Foto 2</span></div>
+              </div>
+              <div class="admin-photo-slot" id="pslot-2" onclick="document.getElementById('pimg-2').click()">
+                <input type="file" id="pimg-2" accept="image/*" style="display:none" onchange="previewSlot(this,2)" />
+                <img class="pslot-preview" id="pprev-2" />
+                <div class="pslot-ph" id="pph-2"><div style="font-size:1.4rem">📷</div><span>Foto 3</span></div>
               </div>
             </div>
           </div>
@@ -2348,7 +2407,7 @@
     // ─── ADMIN SYSTEM ───
     const ADMIN_PASSWORD = 'zenith2025';
     let currentSection = 'lancamentos';
-    let uploadedImageData = null;
+    let uploadedImages = [null, null, null];
     let selectedSizes = [];
 
     // gera botões de numeração 35-45
@@ -2423,16 +2482,17 @@
       renderAdminList();
     }
 
-    function previewImage(input) {
+    function previewSlot(input, idx) {
       const file = input.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function(e) {
-        uploadedImageData = e.target.result;
-        const preview = document.getElementById('upload-preview');
-        preview.src = uploadedImageData;
-        preview.style.display = 'block';
-        document.getElementById('upload-placeholder').style.display = 'none';
+        uploadedImages[idx] = e.target.result;
+        const prev = document.getElementById('pprev-' + idx);
+        prev.src = e.target.result;
+        prev.style.display = 'block';
+        document.getElementById('pph-' + idx).style.display = 'none';
+        document.getElementById('pslot-' + idx).classList.add('filled');
       };
       reader.readAsDataURL(file);
     }
@@ -2450,7 +2510,7 @@
         id: Date.now(),
         brand, name, desc, price, tag,
         sizes: [...selectedSizes].sort((a,b) => a-b),
-        img: uploadedImageData || null
+        imgs: uploadedImages.filter(Boolean)
       };
 
       const arr = getProducts(currentSection);
@@ -2465,10 +2525,14 @@
       document.getElementById('product-tag').value = 'new';
       selectedSizes = [];
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-      document.getElementById('upload-preview').style.display = 'none';
-      document.getElementById('upload-placeholder').style.display = 'block';
-      document.getElementById('product-img-input').value = '';
-      uploadedImageData = null;
+      uploadedImages = [null, null, null];
+      for (let i = 0; i < 3; i++) {
+        const prev = document.getElementById('pprev-' + i);
+        prev.src = ''; prev.style.display = 'none';
+        document.getElementById('pph-' + i).style.display = 'flex';
+        document.getElementById('pimg-' + i).value = '';
+        document.getElementById('pslot-' + i).classList.remove('filled');
+      }
 
       renderAdminList();
       renderSection(currentSection);
@@ -2489,16 +2553,18 @@
         list.innerHTML = '<p style="color:var(--text-muted);font-size:0.85rem;">Nenhum produto nesta seção.</p>';
         return;
       }
-      list.innerHTML = arr.map(p => `
+      list.innerHTML = arr.map(p => {
+        const thumb = (p.imgs && p.imgs[0]) || p.img || null;
+        return `
         <div class="admin-product-item">
-          ${p.img ? `<img src="${p.img}" alt="${p.name}" />` : '<div style="width:48px;height:48px;background:var(--surface);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">👟</div>'}
+          ${thumb ? `<img src="${thumb}" alt="${p.name}" />` : '<div style="width:48px;height:48px;background:var(--surface);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">👟</div>'}
           <div class="admin-product-item-info">
             <div class="admin-product-item-brand">${p.brand || '—'}</div>
             <div class="admin-product-item-name">${p.name}</div>
           </div>
           <button class="admin-delete-btn" onclick="deleteProduct('${currentSection}', ${p.id})">✕ Remover</button>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     const tagLabels = { new: 'Novo', hot: 'Hot', exclusive: 'Exclusivo', outlet: 'Outlet' };
@@ -2519,17 +2585,26 @@
 
       if (emptyEl) emptyEl.style.display = 'none';
 
+      window._prodImgs = window._prodImgs || {};
+
       arr.forEach(p => {
+        const imgs = (p.imgs && p.imgs.length > 0) ? p.imgs : (p.img ? [p.img] : []);
+        window._prodImgs[p.id] = imgs;
+
         const card = document.createElement('div');
         card.className = 'product-card dyn-card fade-in';
         card.style.position = 'relative';
         card.innerHTML = `
           <div class="product-img" style="background:var(--surface2);">
-            ${p.img
-              ? `<img src="${p.img}" alt="${p.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:1rem;transition:transform 0.4s;" />`
+            ${imgs.length > 0
+              ? `<img src="${imgs[0]}" id="mainimg-${p.id}" alt="${p.name}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:1rem;transition:transform 0.4s,opacity 0.25s;" />`
               : '<div style="font-size:4rem;opacity:0.15;">👟</div>'
             }
             <div class="product-tag ${p.tag}">${tagLabels[p.tag] || 'Novo'}</div>
+            ${imgs.length > 1 ? `
+            <div class="product-thumbs">
+              ${imgs.map((_, i) => `<div class="thumb${i===0?' active':''}" data-pid="${p.id}" data-idx="${i}" onclick="switchImg(${p.id},${i})"></div>`).join('')}
+            </div>` : ''}
           </div>
           <div class="product-info">
             ${p.brand ? `<div class="product-brand">${p.brand}</div>` : ''}
@@ -2542,7 +2617,7 @@
             </div>` : ''}
             ${p.sizes && p.sizes.length > 0 ? `
             <div style="margin-top:0.6rem;">
-              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Numeração</span>
+              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Numeração Disponível</span>
               <div class="sizes-display" style="margin-top:4px;">
                 ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
               </div>
@@ -2553,9 +2628,21 @@
           </div>
         `;
 
-        // observer for fade-in
         observer.observe(card);
         grid.appendChild(card);
+      });
+    }
+
+    function switchImg(pid, idx) {
+      const imgs = (window._prodImgs || {})[pid];
+      if (!imgs || !imgs[idx]) return;
+      const mainImg = document.getElementById('mainimg-' + pid);
+      if (mainImg) {
+        mainImg.style.opacity = '0';
+        setTimeout(() => { mainImg.src = imgs[idx]; mainImg.style.opacity = '1'; }, 200);
+      }
+      document.querySelectorAll(`.thumb[data-pid="${pid}"]`).forEach((t, i) => {
+        t.classList.toggle('active', i === idx);
       });
     }
 

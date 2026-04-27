@@ -1408,6 +1408,37 @@
 
     .admin-delete-btn:hover { background: #cc0000; transform: scale(1.05); }
 
+    .admin-edit-btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      border-radius: 6px;
+      padding: 0.4rem 0.8rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: 'Barlow', sans-serif;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .admin-edit-btn:hover { background: var(--accent); color: #080808; transform: scale(1.05); }
+
+    #edit-modal { display: none; position: fixed; inset: 0; z-index: 200; background: rgba(0,0,0,0.88); align-items: center; justify-content: center; padding: 1rem; }
+    #edit-modal.open { display: flex; }
+    .edit-modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      padding: 1.5rem;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .edit-modal-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--text); margin-bottom: 1.25rem; }
+    .edit-modal-box h3 span { color: var(--accent); }
+    .edit-size-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+
     /* ─── SIZE GRID ─── */
     .size-grid {
       display: flex;
@@ -2115,6 +2146,44 @@
   <!-- ADMIN BUTTON -->
   <button id="admin-btn" title="Gerenciar Site" onclick="openAdmin()">⚙️</button>
 
+  <!-- EDIT MODAL -->
+  <div id="edit-modal">
+    <div class="edit-modal-box">
+      <h3>Editar <span>Produto</span></h3>
+
+      <div class="admin-field">
+        <label>Marca</label>
+        <input type="text" id="edit-brand" placeholder="Ex: Nike, Adidas..." />
+      </div>
+      <div class="admin-field">
+        <label>Nome do Produto</label>
+        <input type="text" id="edit-name" placeholder="Ex: Air Max 2025..." />
+      </div>
+      <div class="admin-field">
+        <label>Preço</label>
+        <input type="text" id="edit-price" placeholder="Ex: R$ 299,90" />
+      </div>
+      <div class="admin-field">
+        <label>Numerações disponíveis</label>
+        <div class="edit-size-grid" id="edit-size-grid"></div>
+      </div>
+      <div class="admin-field">
+        <label>Tag</label>
+        <select id="edit-tag">
+          <option value="new">Novo</option>
+          <option value="hot">Hot</option>
+          <option value="exclusive">Exclusivo</option>
+          <option value="outlet">Outlet</option>
+        </select>
+      </div>
+
+      <div class="admin-actions" style="margin-top:1.25rem;">
+        <button class="admin-save" onclick="saveEdit()">Salvar Alterações</button>
+        <button class="admin-close" onclick="closeEditModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ADMIN PANEL -->
   <div id="admin-panel">
     <div class="admin-box">
@@ -2405,6 +2474,69 @@
       renderSection(section);
     }
 
+    let _editSection = null;
+    let _editId = null;
+    let _editSizes = [];
+
+    function openEditModal(section, id) {
+      const product = getProducts(section).find(p => p.id === id);
+      if (!product) return;
+      _editSection = section;
+      _editId = id;
+      _editSizes = [...(product.sizes || [])];
+
+      document.getElementById('edit-brand').value = product.brand || '';
+      document.getElementById('edit-name').value  = product.name  || '';
+      document.getElementById('edit-price').value = product.price || '';
+      document.getElementById('edit-tag').value   = product.tag   || 'new';
+
+      // monta grade de numerações
+      const grid = document.getElementById('edit-size-grid');
+      grid.innerHTML = '';
+      for (let n = 35; n <= 45; n++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'size-btn' + (_editSizes.includes(n) ? ' selected' : '');
+        btn.textContent = n;
+        btn.onclick = function() {
+          if (_editSizes.includes(n)) {
+            _editSizes = _editSizes.filter(s => s !== n);
+            btn.classList.remove('selected');
+          } else {
+            _editSizes.push(n);
+            btn.classList.add('selected');
+          }
+        };
+        grid.appendChild(btn);
+      }
+
+      document.getElementById('edit-modal').classList.add('open');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.remove('open');
+      _editSection = null; _editId = null; _editSizes = [];
+    }
+
+    function saveEdit() {
+      if (!_editSection || !_editId) return;
+      const arr = getProducts(_editSection).map(p => {
+        if (p.id !== _editId) return p;
+        return {
+          ...p,
+          brand: document.getElementById('edit-brand').value.trim(),
+          name:  document.getElementById('edit-name').value.trim()  || p.name,
+          price: document.getElementById('edit-price').value.trim(),
+          tag:   document.getElementById('edit-tag').value,
+          sizes: [..._editSizes].sort((a, b) => a - b),
+        };
+      });
+      saveProducts(_editSection, arr);
+      renderAdminList();
+      renderSection(_editSection);
+      closeEditModal();
+    }
+
     function renderAdminList() {
       const list = document.getElementById('admin-products-list');
       const arr = getProducts(currentSection);
@@ -2421,7 +2553,10 @@
             <div class="admin-product-item-brand">${p.brand || '—'}</div>
             <div class="admin-product-item-name">${p.name}</div>
           </div>
-          <button class="admin-delete-btn" onclick="deleteProduct('${currentSection}', ${p.id})">✕ Remover</button>
+          <div style="display:flex;gap:0.5rem;flex-shrink:0;">
+            <button class="admin-edit-btn" onclick="openEditModal('${currentSection}', ${p.id})">✏ Editar</button>
+            <button class="admin-delete-btn" onclick="deleteProduct('${currentSection}', ${p.id})">✕ Remover</button>
+          </div>
         </div>`;
       }).join('');
     }

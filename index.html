@@ -1778,9 +1778,17 @@
       nav.scrolled { padding: 0.7rem 1.5rem; }
       .nav-links { display: none; }
       section { padding: 4rem 1.5rem; }
-      #hero { padding: 0 1.5rem; }
+      #hero { padding: 2rem 1.5rem; flex-direction: column; align-items: center; text-align: center; min-height: auto; }
       .hero-stats { display: none; }
-      .hero-visual { display: none; }
+      .hero-visual {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-top: 2rem;
+      }
+      .shoe-scene { width: 260px; height: 260px; }
+      .hero-shoe-img-wrap { width: 220px; height: 220px; }
+      .shoe-ring { display: none; }
       .hero-content { max-width: 100%; }
       .about-grid, .hours-grid { grid-template-columns: 1fr; gap: 2rem; }
       .launches-grid { grid-template-columns: 1fr; }
@@ -1828,7 +1836,6 @@
       </p>
       <div class="hero-actions">
         <a href="#lancamentos" class="btn-primary">Ver Lançamentos →</a>
-        <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-ghost">@ Instagram</a>
       </div>
     </div>
 

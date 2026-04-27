@@ -1778,18 +1778,22 @@
       nav.scrolled { padding: 0.7rem 1.5rem; }
       .nav-links { display: none; }
       section { padding: 4rem 1.5rem; }
-      #hero { padding: 2rem 1.5rem; flex-direction: column; align-items: center; text-align: center; min-height: auto; }
+      #hero { padding: 7rem 1.5rem 3rem; flex-direction: column; align-items: center; text-align: center; min-height: auto; gap: 1rem; }
+      .hero-title { font-size: clamp(3rem, 14vw, 5rem); }
+      .hero-title .outline { -webkit-text-stroke: 2px rgba(255,255,255,0.85); }
       .hero-stats { display: none; }
       .hero-visual {
         display: flex;
         justify-content: center;
         width: 100%;
-        margin-top: 2rem;
+        margin-top: 1rem;
       }
       .shoe-scene { width: 260px; height: 260px; }
       .hero-shoe-img-wrap { width: 220px; height: 220px; }
       .shoe-ring { display: none; }
       .hero-content { max-width: 100%; }
+      .hero-actions { justify-content: center; }
+      .hero-sub { margin-left: auto; margin-right: auto; }
       .about-grid, .hours-grid { grid-template-columns: 1fr; gap: 2rem; }
       .launches-grid { grid-template-columns: 1fr; }
       .product-card.featured { grid-column: span 1; }

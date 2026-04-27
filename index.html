@@ -113,6 +113,30 @@
 
     .nav-cta:hover { background: #e0ff00 !important; color: #080808 !important; }
 
+    .nav-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 28px;
+      height: 22px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 102;
+    }
+    .nav-toggle span {
+      display: block;
+      height: 3px;
+      width: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(9.5px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-9.5px) rotate(-45deg); }
+
     /* ─── HERO ─── */
     #hero {
       min-height: 100vh;
@@ -1776,7 +1800,27 @@
     @media (max-width: 900px) {
       nav { padding: 1rem 1.5rem; }
       nav.scrolled { padding: 0.7rem 1.5rem; }
-      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .nav-links {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1.5rem;
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 75%;
+        max-width: 320px;
+        height: 100vh;
+        background: rgba(8,8,8,0.98);
+        backdrop-filter: blur(20px);
+        border-left: 1px solid rgba(200,240,0,0.15);
+        padding: 6rem 2rem 2rem;
+        transition: right 0.35s ease;
+        z-index: 101;
+      }
+      .nav-links.open { right: 0; }
+      .nav-links a { font-size: 1rem; }
       section { padding: 4rem 1.5rem; }
       #hero { padding: 7rem 1.5rem 3rem; flex-direction: column; align-items: center; text-align: center; min-height: auto; gap: 1rem; }
       .hero-title { font-size: clamp(3rem, 14vw, 5rem); }
@@ -1788,8 +1832,8 @@
         width: 100%;
         margin-top: 1rem;
       }
-      .shoe-scene { width: 260px; height: 260px; }
-      .hero-shoe-img-wrap { width: 220px; height: 220px; }
+      .shoe-scene { width: 180px; height: 180px; }
+      .hero-shoe-img-wrap { width: 150px; height: 150px; }
       .shoe-ring { display: none; }
       .hero-content { max-width: 100%; }
       .hero-actions { justify-content: center; }
@@ -1811,7 +1855,10 @@
     <a href="#" class="nav-logo">
       <img src="logo.png.jpeg" alt="Zenith Sports" class="nav-logo-img" />
     </a>
-    <ul class="nav-links">
+    <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="nav-links">
       <li><a href="#sobre">Sobre</a></li>
       <li><a href="#lancamentos">Lançamentos</a></li>
       <li><a href="#feminino">Feminino</a></li>
@@ -1830,9 +1877,9 @@
     <div class="hero-content">
       <div class="hero-badge">Agudos · SP — Tênis Originais</div>
       <h1 class="hero-title">
-        <span class="outline">Leve seu</span>
+        <span class="outline">Levando seu</span>
         <span class="accent">Esporte</span>
-        <span>a sério.</span>
+        <span>a sério</span>
       </h1>
       <p class="hero-sub">
         Tênis esportivos 100% originais das maiores marcas do mundo.
@@ -2306,6 +2353,22 @@
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('scrolled', window.scrollY > 60);
     });
+
+    // ─── MOBILE MENU TOGGLE ───
+    const navToggle = document.getElementById('nav-toggle');
+    const navLinks = document.getElementById('nav-links');
+    if (navToggle && navLinks) {
+      navToggle.addEventListener('click', () => {
+        navToggle.classList.toggle('open');
+        navLinks.classList.toggle('open');
+      });
+      navLinks.querySelectorAll('a').forEach(a => {
+        a.addEventListener('click', () => {
+          navToggle.classList.remove('open');
+          navLinks.classList.remove('open');
+        });
+      });
+    }
 
     // ─── FADE IN OBSERVER ───
     const observer = new IntersectionObserver((entries) => {

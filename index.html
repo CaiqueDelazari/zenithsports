@@ -1848,6 +1848,8 @@
       .brands-grid { gap: 2rem; }
     }
   </style>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -2436,12 +2438,25 @@
       }
     })();
 
+    // ─── FIREBASE INIT ───
+    firebase.initializeApp({
+      apiKey: "AIzaSyDdSV6Qxwc0AAAQa1UXlnAYjRMcWwQvwlo",
+      authDomain: "zenith-78b6b.firebaseapp.com",
+      projectId: "zenith-78b6b",
+      storageBucket: "zenith-78b6b.firebasestorage.app",
+      messagingSenderId: "719909659001",
+      appId: "1:719909659001:web:a8571bf59d161a4cdd4fa8"
+    });
+    const db = firebase.firestore();
+    const _cache = { lancamentos: [], feminino: [], masculino: [], outlet: [] };
+
     function getProducts(section) {
-      return JSON.parse(localStorage.getItem('zs_' + section) || '[]');
+      return _cache[section] || [];
     }
 
     function saveProducts(section, arr) {
-      localStorage.setItem('zs_' + section, JSON.stringify(arr));
+      _cache[section] = arr;
+      db.collection('sections').doc(section).set({ products: arr }).catch(console.error);
     }
 
     function openAdminSection(section) {
@@ -2791,8 +2806,17 @@
       if (shoeState === 2) wrap.classList.add('slow');
     }
 
-    // ─── INIT: render all sections ───
-    ['lancamentos', 'feminino', 'masculino', 'outlet'].forEach(renderSection);
+    // ─── INIT: sync com Firebase em tempo real ───
+    ['lancamentos', 'feminino', 'masculino', 'outlet'].forEach(section => {
+      db.collection('sections').doc(section).onSnapshot(doc => {
+        _cache[section] = doc.exists ? (doc.data().products || []) : [];
+        renderSection(section);
+        if (document.getElementById('admin-main').style.display !== 'none') renderAdminList();
+      }, () => {
+        _cache[section] = JSON.parse(localStorage.getItem('zs_' + section) || '[]');
+        renderSection(section);
+      });
+    });
   </script>
 </body>
 </html>

@@ -2457,7 +2457,11 @@
 
     function saveProducts(section, arr) {
       _cache[section] = arr;
-      db.collection('sections').doc(section).set({ products: arr }).catch(console.error);
+      db.collection('sections').doc(section).set({ products: arr })
+        .catch(err => {
+          console.error('Erro ao salvar:', err);
+          alert('Erro ao salvar no Firebase: ' + err.message + '\n\nDica: tente fotos menores ou em menos quantidade.');
+        });
     }
 
     function openAdminSection(section) {
@@ -2501,19 +2505,49 @@
       renderAdminList();
     }
 
-    function previewSlot(input, idx) {
+    function compressImage(file, maxSize = 800, quality = 0.75) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            if (width > height && width > maxSize) {
+              height = Math.round(height * maxSize / width);
+              width = maxSize;
+            } else if (height > maxSize) {
+              width = Math.round(width * maxSize / height);
+              height = maxSize;
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function previewSlot(input, idx) {
       const file = input.files[0];
       if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        uploadedImages[idx] = e.target.result;
+      try {
+        const compressed = await compressImage(file);
+        uploadedImages[idx] = compressed;
         const prev = document.getElementById('pprev-' + idx);
-        prev.src = e.target.result;
+        prev.src = compressed;
         prev.style.display = 'block';
         document.getElementById('pph-' + idx).style.display = 'none';
         document.getElementById('pslot-' + idx).classList.add('filled');
-      };
-      reader.readAsDataURL(file);
+      } catch (err) {
+        alert('Erro ao processar imagem: ' + err.message);
+      }
     }
 
     function addProduct() {

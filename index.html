@@ -680,6 +680,47 @@
     .product-tag.hot { background: #ff4444; color: white; }
     .product-tag.exclusive { background: #8844ff; color: white; }
 
+    .pix-badge {
+      position: absolute;
+      top: 0.7rem;
+      right: 0.7rem;
+      width: 56px;
+      height: 56px;
+      background: radial-gradient(circle at 40% 35%, #c8f000, #8aaa00);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px rgba(200,240,0,0.55), 0 2px 8px rgba(0,0,0,0.4);
+      z-index: 5;
+      line-height: 1.1;
+      border: 2px solid rgba(255,255,255,0.15);
+    }
+    .pix-badge-pct {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 900;
+      font-size: 1rem;
+      color: #080808;
+      letter-spacing: -0.5px;
+    }
+    .pix-badge-off {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 700;
+      font-size: 0.52rem;
+      color: #080808;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .pix-badge-pix {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 0.58rem;
+      color: #1a3300;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
     .product-info {
       padding: 1.5rem;
     }
@@ -2420,7 +2461,7 @@
     // gera botões de numeração 35-45
     (function buildSizeGrid() {
       const grid = document.getElementById('size-grid');
-      for (let n = 35; n <= 45; n++) {
+      for (let n = 34; n <= 45; n++) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'size-btn';
@@ -2619,7 +2660,7 @@
       // monta grade de numerações
       const grid = document.getElementById('edit-size-grid');
       grid.innerHTML = '';
-      for (let n = 35; n <= 45; n++) {
+      for (let n = 34; n <= 45; n++) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'size-btn' + (_editSizes.includes(n) ? ' selected' : '');
@@ -2721,6 +2762,11 @@
               : '<div style="font-size:4rem;opacity:0.15;">👟</div>'
             }
             <div class="product-tag ${p.tag}">${tagLabels[p.tag] || 'Novo'}</div>
+            <div class="pix-badge">
+              <span class="pix-badge-pct">10%</span>
+              <span class="pix-badge-off">OFF</span>
+              <span class="pix-badge-pix">no PIX</span>
+            </div>
             ${imgs.length > 1 ? `
             <div class="card-arrow left"  onclick="stepImg(${p.id},-1,event)">&#8249;</div>
             <div class="card-arrow right" onclick="stepImg(${p.id}, 1,event)">&#8250;</div>

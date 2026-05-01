@@ -1228,19 +1228,7 @@
 
     /* ─── ADMIN PANEL ─── */
     #admin-btn {
-      position: fixed;
-      bottom: 5.5rem;
-      right: 2rem;
-      z-index: 200;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      width: 46px; height: 46px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 1.1rem;
-      transition: all 0.2s;
+      display: none !important;
     }
 
     #admin-btn:hover { border-color: var(--accent); color: var(--accent); }
@@ -2899,6 +2887,31 @@
         renderSection(section);
       });
     });
+
+    // ─── KEYBOARD SHORTCUT: Ctrl+Shift+A para abrir admin ───
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        openAdmin();
+      }
+    });
+
+    // ─── TAP DETECTION: 5 toques no logo para abrir admin ───
+    const logoEl = document.querySelector('.nav-logo');
+    let tapCount = 0;
+    let tapTimeout;
+    if (logoEl) {
+      logoEl.addEventListener('click', () => {
+        tapCount++;
+        clearTimeout(tapTimeout);
+        if (tapCount === 5) {
+          openAdmin();
+          tapCount = 0;
+        } else {
+          tapTimeout = setTimeout(() => { tapCount = 0; }, 500);
+        }
+      });
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,52 @@
+// Regras do Firestore para o projeto zenith-78b6b.
+//
+// Cole isto em: console.firebase.google.com > Firestore Database > Regras > Publicar
+//
+// ATENCAO — troque o e-mail abaixo pelo e-mail real do admin antes de publicar.
+//
+// Por que travar no e-mail e nao so em "esta logado":
+// com o login por e-mail/senha ativado, o endpoint de cadastro do Firebase fica
+// publico. Qualquer pessoa pega a chave da API no codigo-fonte do site, cria uma
+// conta pra si mesma e passaria a satisfazer `request.auth != null`. Travando no
+// e-mail, criar conta nao serve de nada — so o dono da conta listada escreve.
+//
+// Os produtos ficam em sections/{secao}/products/{id} e as fotos extras em
+// .../products/{id}/media/extra. Uma regra escrita so como `match /sections/{secao}`
+// NAO cobre as subcolecoes — por isso o `{document=**}`.
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Lista de quem pode escrever. Para dar acesso a mais alguem, somar o e-mail
+    // aqui e publicar de novo; para tirar o acesso, remover a linha.
+    //
+    // NUNCA deixar e-mail de exemplo/placeholder nesta lista. O cadastro do Firebase
+    // nao verifica se o endereco existe: qualquer um poderia criar uma conta com
+    // aquele e-mail e ganhar permissao de escrita. So e-mail real, de conta que ja
+    // foi criada no console.
+    function ehAdmin() {
+      return request.auth != null
+          && request.auth.token.email in [
+               'delazaricaique2@gmail.com'
+             ];
+    }
+
+    // Catalogo: qualquer um le (o site e publico), so o admin escreve.
+    match /sections/{secao}/{document=**} {
+      allow read:  if true;
+      allow write: if ehAdmin();
+    }
+
+    // Copia de seguranca da migracao: nem leitura publica.
+    match /sections_backup/{secao} {
+      allow read, write: if ehAdmin();
+    }
+
+    // Nada mais e acessivel.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

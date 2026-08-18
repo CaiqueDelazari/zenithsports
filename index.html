@@ -1714,9 +1714,10 @@
       pointer-events: none;
     }
 
-    /* ─── ADMIN 3 FOTOS ─── */
+    /* ─── ADMIN FOTOS ─── */
     .admin-photos-row {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 0.6rem;
     }
 
@@ -1881,6 +1882,7 @@
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
@@ -2306,22 +2308,36 @@
         <h2>Gerenciar <span>Site</span></h2>
         <p class="admin-subtitle">Área exclusiva Zenith Sports</p>
         <div class="admin-password-screen">
-          <p>Digite a senha para acessar o painel</p>
-          <div class="admin-field">
-            <input type="password" id="admin-pwd" placeholder="Senha..." onkeydown="if(event.key==='Enter') checkPwd()" />
+          <p>Entre com seu e-mail e senha</p>
+          <div class="admin-field" style="text-align:left;">
+            <label>E-mail</label>
+            <input type="email" id="admin-email" autocomplete="username" placeholder="voce@exemplo.com"
+                   onkeydown="if(event.key==='Enter') document.getElementById('admin-pwd').focus()" />
+          </div>
+          <div class="admin-field" style="text-align:left;">
+            <label>Senha</label>
+            <input type="password" id="admin-pwd" autocomplete="current-password" placeholder="Senha..."
+                   onkeydown="if(event.key==='Enter') fazerLogin()" />
           </div>
           <div class="admin-actions">
-            <button class="admin-save" onclick="checkPwd()">Entrar</button>
+            <button class="admin-save" id="btn-entrar" onclick="fazerLogin()">Entrar</button>
             <button class="admin-close" onclick="closeAdmin()">Cancelar</button>
           </div>
-          <p id="pwd-error" style="color:#ff4444;font-size:0.8rem;display:none;">Senha incorreta.</p>
+          <p id="pwd-error" style="color:#ff4444;font-size:0.8rem;display:none;"></p>
+          <p style="font-size:0.75rem;">
+            <a href="#" onclick="esqueciSenha();return false;" style="color:var(--accent);">Esqueci minha senha</a>
+          </p>
+          <p style="font-size:0.72rem;color:var(--text-muted);">Você continua logado neste aparelho até clicar em Sair.</p>
         </div>
       </div>
 
       <!-- PAINEL PRINCIPAL -->
       <div id="admin-main" style="display:none;">
         <h2>Gerenciar <span>Site</span></h2>
-        <p class="admin-subtitle">Adicione ou remova produtos de cada seção</p>
+        <p class="admin-subtitle">
+          Logado como <strong id="admin-quem" style="color:var(--accent);"></strong>
+          &middot; <a href="#" onclick="sairAdmin();return false;" style="color:var(--text-muted);">Sair</a>
+        </p>
 
         <!-- ABAS DE SEÇÃO -->
         <div class="admin-section-tabs">
@@ -2335,24 +2351,8 @@
         <!-- FORMULÁRIO DE NOVO PRODUTO -->
         <div class="admin-form">
           <div class="admin-field">
-            <label>Fotos do Produto (até 3)</label>
-            <div class="admin-photos-row">
-              <div class="admin-photo-slot" id="pslot-0" onclick="document.getElementById('pimg-0').click()">
-                <input type="file" id="pimg-0" accept="image/*" style="display:none" onchange="previewSlot(this,0)" />
-                <img class="pslot-preview" id="pprev-0" />
-                <div class="pslot-ph" id="pph-0"><div style="font-size:1.4rem">📷</div><span>Foto 1</span></div>
-              </div>
-              <div class="admin-photo-slot" id="pslot-1" onclick="document.getElementById('pimg-1').click()">
-                <input type="file" id="pimg-1" accept="image/*" style="display:none" onchange="previewSlot(this,1)" />
-                <img class="pslot-preview" id="pprev-1" />
-                <div class="pslot-ph" id="pph-1"><div style="font-size:1.4rem">📷</div><span>Foto 2</span></div>
-              </div>
-              <div class="admin-photo-slot" id="pslot-2" onclick="document.getElementById('pimg-2').click()">
-                <input type="file" id="pimg-2" accept="image/*" style="display:none" onchange="previewSlot(this,2)" />
-                <img class="pslot-preview" id="pprev-2" />
-                <div class="pslot-ph" id="pph-2"><div style="font-size:1.4rem">📷</div><span>Foto 3</span></div>
-              </div>
-            </div>
+            <label>Fotos do Produto (até 6)</label>
+            <div class="admin-photos-row" id="admin-photos-row"></div>
           </div>
           <div class="admin-field">
             <label>Marca</label>
@@ -2463,10 +2463,33 @@
     });
 
     // ─── ADMIN SYSTEM ───
-    const ADMIN_PASSWORD = 'zenith2025';
+    // A autenticação é feita pelo Firebase Auth (ver mais abaixo). Não existe senha
+    // no código: quem manda é a regra do Firestore, que só aceita escrita de quem
+    // está logado — então abrir o painel pelo console não dá poder nenhum.
     let currentSection = 'lancamentos';
-    let uploadedImages = [null, null, null];
+    const MAX_PHOTOS = 6;
+    let uploadedImages = new Array(MAX_PHOTOS).fill(null);
     let selectedSizes = [];
+
+    // gera os slots de foto do painel admin
+    (function buildPhotoSlots() {
+      const row = document.getElementById('admin-photos-row');
+      if (!row) return;
+      row.innerHTML = '';
+      for (let i = 0; i < MAX_PHOTOS; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'admin-photo-slot';
+        slot.id = 'pslot-' + i;
+        slot.innerHTML =
+          '<input type="file" id="pimg-' + i + '" accept="image/*" style="display:none" />' +
+          '<img class="pslot-preview" id="pprev-' + i + '" />' +
+          '<div class="pslot-ph" id="pph-' + i + '"><div style="font-size:1.4rem">📷</div><span>Foto ' + (i + 1) + '</span></div>';
+        const input = slot.querySelector('input');
+        slot.onclick = () => input.click();
+        input.onchange = function () { previewSlot(this, i); };
+        row.appendChild(slot);
+      }
+    })();
 
     // gera botões de numeração 35-45
     (function buildSizeGrid() {
@@ -2501,19 +2524,153 @@
       appId: "1:719909659001:web:a8571bf59d161a4cdd4fa8"
     });
     const db = firebase.firestore();
+    const SECTIONS = ['lancamentos', 'corrida-performance', 'corrida-iniciante', 'cross-academia', 'outlet'];
+    const DOC_SAFE_LIMIT = 950000; // Firestore corta em 1 MiB por documento; margem de segurança
+
     const _cache = { lancamentos: [], 'corrida-performance': [], 'corrida-iniciante': [], 'cross-academia': [], outlet: [] };
+
+    // Cada produto é um documento em sections/{secao}/products/{id}.
+    // Assim o teto de 1 MB do Firestore passa a valer por produto, e não pela seção inteira.
+    //
+    // O documento do produto guarda apenas a CAPA (primeira foto). As demais ficam em
+    // sections/{secao}/products/{id}/media/extra e só são baixadas quando o visitante
+    // clica na seta para ver as outras fotos — a página abre ~6x mais leve.
+    function productsRef(section) {
+      return db.collection('sections').doc(section).collection('products');
+    }
+
+    function mediaRef(section, id) {
+      return productsRef(section).doc(String(id)).collection('media').doc('extra');
+    }
 
     function getProducts(section) {
       return _cache[section] || [];
     }
 
-    function saveProducts(section, arr) {
-      _cache[section] = arr;
-      db.collection('sections').doc(section).set({ products: arr })
+    // Fotos já disponíveis localmente (pode ser só a capa). Aceita o formato antigo com imgs[].
+    function knownImgs(p) {
+      if (Array.isArray(p.imgs) && p.imgs.length) return p.imgs;
+      if (p.cover) return [p.cover];
+      return p.img ? [p.img] : [];
+    }
+
+    // Quantas fotos o produto tem no total, mesmo as ainda não baixadas.
+    function totalImgs(p) {
+      if (Array.isArray(p.imgs) && p.imgs.length) return p.imgs.length;
+      if (typeof p.imgCount === 'number') return p.imgCount;
+      return knownImgs(p).length;
+    }
+
+    function tooBig(obj) {
+      return new Blob([JSON.stringify(obj)]).size > DOC_SAFE_LIMIT;
+    }
+
+    // Salva só os campos de texto (usado pela edição, que não mexe nas fotos).
+    function saveProduct(section, product) {
+      if (tooBig(product)) {
+        alert('Este produto passou do limite de 1 MB do Firebase.\n\nRemova uma foto ou use imagens menores.');
+        return Promise.reject(new Error('produto acima do limite'));
+      }
+      return productsRef(section).doc(String(product.id)).set(product)
         .catch(err => {
           console.error('Erro ao salvar:', err);
-          alert('Erro ao salvar no Firebase: ' + err.message + '\n\nDica: tente fotos menores ou em menos quantidade.');
+          alert('Erro ao salvar no Firebase: ' + err.message);
+          throw err;
         });
+    }
+
+    // Salva o produto dividido em capa + fotos extras.
+    async function saveProductWithImages(section, product, imgs) {
+      const cover = imgs[0] || null;
+      const extra = imgs.slice(1);
+      const doc = Object.assign({}, product, { cover, imgCount: imgs.length });
+      delete doc.imgs;
+
+      if (tooBig(doc)) {
+        alert('A foto de capa ficou grande demais (limite de 1 MB).\n\nUse uma imagem menor na primeira posição.');
+        throw new Error('capa acima do limite');
+      }
+      if (extra.length && tooBig({ imgs: extra })) {
+        alert('As fotos extras somam mais de 1 MB.\n\nRemova uma foto ou use imagens menores.');
+        throw new Error('extras acima do limite');
+      }
+
+      try {
+        await productsRef(section).doc(String(product.id)).set(doc);
+        if (extra.length) {
+          await mediaRef(section, product.id).set({ imgs: extra });
+        }
+      } catch (err) {
+        console.error('Erro ao salvar:', err);
+        alert('Erro ao salvar no Firebase: ' + err.message);
+        throw err;
+      }
+      return doc;
+    }
+
+    function removeProductDoc(section, id) {
+      mediaRef(section, id).delete().catch(() => {});
+      return productsRef(section).doc(String(id)).delete()
+        .catch(err => {
+          console.error('Erro ao remover:', err);
+          alert('Erro ao remover no Firebase: ' + err.message);
+        });
+    }
+
+    // Migração única do formato antigo (todos os produtos dentro de um único documento).
+    // Guarda uma cópia em sections_backup/{secao} antes de esvaziar o documento antigo.
+    async function migrateLegacySection(section) {
+      const legacyRef = db.collection('sections').doc(section);
+      const snap = await legacyRef.get();
+      if (!snap.exists) return;
+      const data = snap.data() || {};
+      const legacy = data.products || [];
+      if (data.migrated || legacy.length === 0) return;
+
+      const batch = db.batch();
+      legacy.forEach((p, i) => {
+        const id = p.id || (Date.now() + i);
+        const imgs = knownImgs(p);
+        const doc = Object.assign({}, p, { id, cover: imgs[0] || null, imgCount: imgs.length });
+        delete doc.imgs;
+        batch.set(productsRef(section).doc(String(id)), doc);
+        if (imgs.length > 1) {
+          batch.set(mediaRef(section, id), { imgs: imgs.slice(1) });
+        }
+      });
+      batch.set(db.collection('sections_backup').doc(section), { products: legacy, at: Date.now() });
+      batch.set(legacyRef, { products: [], migrated: true, mediaSplit: true });
+      await batch.commit();
+      console.log('[migração] ' + section + ': ' + legacy.length + ' produto(s) movidos para documentos separados.');
+    }
+
+    // Segunda migração: produtos que já estão em documentos separados mas ainda guardam
+    // todas as fotos em imgs[]. Move as fotos 2+ para a subcoleção media/extra.
+    async function splitProductMedia(section) {
+      const flagRef = db.collection('sections').doc(section);
+      const flag = await flagRef.get();
+      if (flag.exists && flag.data().mediaSplit) return;
+
+      const snap = await productsRef(section).get();
+      const pendentes = snap.docs.filter(d => Array.isArray(d.data().imgs) && d.data().imgs.length > 0);
+
+      if (pendentes.length) {
+        const batch = db.batch();
+        pendentes.forEach(d => {
+          const p = d.data();
+          const imgs = p.imgs;
+          const doc = Object.assign({}, p, { cover: imgs[0] || null, imgCount: imgs.length });
+          delete doc.imgs;
+          batch.set(d.ref, doc);
+          if (imgs.length > 1) {
+            batch.set(mediaRef(section, p.id), { imgs: imgs.slice(1) });
+          }
+        });
+        await batch.commit();
+        console.log('[migração] ' + section + ': fotos extras de ' + pendentes.length + ' produto(s) separadas da capa.');
+      }
+
+      await flagRef.set({ mediaSplit: true }, { merge: true });
     }
 
     function openAdminSection(section) {
@@ -2528,26 +2685,106 @@
 
     function openAdmin() {
       document.getElementById('admin-panel').classList.add('open');
-      document.getElementById('admin-pwd').value = '';
       document.getElementById('pwd-error').style.display = 'none';
-      document.getElementById('admin-lock').style.display = 'block';
-      document.getElementById('admin-main').style.display = 'none';
-      setTimeout(() => document.getElementById('admin-pwd').focus(), 100);
+      aplicarEstadoAdmin();
+      if (!firebase.auth().currentUser) {
+        setTimeout(() => document.getElementById('admin-email').focus(), 100);
+      }
     }
 
     function closeAdmin() {
       document.getElementById('admin-panel').classList.remove('open');
     }
 
-    function checkPwd() {
-      const val = document.getElementById('admin-pwd').value;
-      if (val === ADMIN_PASSWORD) {
-        document.getElementById('admin-lock').style.display = 'none';
-        document.getElementById('admin-main').style.display = 'block';
+    // Mostra a tela de login ou o painel, conforme quem está logado.
+    function aplicarEstadoAdmin() {
+      const user = firebase.auth().currentUser;
+      const lock = document.getElementById('admin-lock');
+      const main = document.getElementById('admin-main');
+      if (!lock || !main) return;
+      lock.style.display = user ? 'none' : 'block';
+      main.style.display = user ? 'block' : 'none';
+      if (user) {
+        const quem = document.getElementById('admin-quem');
+        if (quem) quem.textContent = user.email || '';
         renderAdminList();
-      } else {
-        document.getElementById('pwd-error').style.display = 'block';
       }
+    }
+
+    function mensagemAuth(code) {
+      const m = {
+        'auth/invalid-email': 'E-mail inválido.',
+        'auth/user-not-found': 'Usuário não encontrado.',
+        'auth/wrong-password': 'Senha incorreta.',
+        'auth/invalid-credential': 'E-mail ou senha incorretos.',
+        'auth/too-many-requests': 'Muitas tentativas seguidas. Espere alguns minutos.',
+        'auth/network-request-failed': 'Sem conexão com a internet.',
+        'auth/operation-not-allowed': 'Ative o login por E-mail/senha no console do Firebase.'
+      };
+      return m[code] || ('Não consegui entrar (' + code + ').');
+    }
+
+    async function fazerLogin() {
+      const email = document.getElementById('admin-email').value.trim();
+      const senha = document.getElementById('admin-pwd').value;
+      const erro  = document.getElementById('pwd-error');
+      const btn   = document.getElementById('btn-entrar');
+      erro.style.display = 'none';
+      erro.style.color = '#ff4444';
+
+      if (!email || !senha) {
+        erro.textContent = 'Preencha o e-mail e a senha.';
+        erro.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+      try {
+        await firebase.auth().signInWithEmailAndPassword(email, senha);
+        document.getElementById('admin-pwd').value = '';
+      } catch (err) {
+        console.error('Falha no login:', err.code);
+        erro.textContent = mensagemAuth(err.code);
+        erro.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Entrar';
+      }
+    }
+
+    // Manda o e-mail de redefinição do próprio Firebase: quem cria a conta não precisa
+    // saber a senha do admin, ele mesmo define a dele pelo link que chega no e-mail.
+    async function esqueciSenha() {
+      const email = document.getElementById('admin-email').value.trim();
+      const erro  = document.getElementById('pwd-error');
+
+      if (!email) {
+        erro.style.color = '#ff4444';
+        erro.textContent = 'Digite seu e-mail no campo acima primeiro.';
+        erro.style.display = 'block';
+        return;
+      }
+
+      try {
+        await firebase.auth().sendPasswordResetEmail(email);
+        erro.style.color = 'var(--accent)';
+        erro.textContent = 'Link de redefinição enviado para ' + email + '. Confira a caixa de entrada (e o spam).';
+      } catch (err) {
+        console.error('Falha ao enviar redefinição:', err.code);
+        erro.style.color = '#ff4444';
+        erro.textContent = mensagemAuth(err.code);
+      }
+      erro.style.display = 'block';
+    }
+
+    async function sairAdmin() {
+      try {
+        await firebase.auth().signOut();
+      } catch (err) {
+        console.error('Erro ao sair:', err);
+      }
+      closeAdmin();
     }
 
     function selectSection(section, btn) {
@@ -2602,7 +2839,7 @@
       }
     }
 
-    function addProduct() {
+    async function addProduct() {
       const brand = document.getElementById('product-brand').value.trim();
       const name = document.getElementById('product-name').value.trim();
       const desc = document.getElementById('product-desc').value.trim();
@@ -2611,16 +2848,23 @@
 
       if (!name) { alert('Digite o nome do produto.'); return; }
 
+      const imgs = uploadedImages.filter(Boolean);
       const product = {
         id: Date.now(),
         brand, name, desc, price, tag,
-        sizes: [...selectedSizes].sort((a,b) => a-b),
-        imgs: uploadedImages.filter(Boolean)
+        sizes: [...selectedSizes].sort((a,b) => a-b)
       };
 
-      const arr = getProducts(currentSection);
-      arr.push(product);
-      saveProducts(currentSection, arr);
+      let salvo;
+      try {
+        salvo = await saveProductWithImages(currentSection, product, imgs);
+      } catch (err) {
+        return; // mantém o formulário preenchido para o usuário corrigir
+      }
+      _cache[currentSection] = getProducts(currentSection).concat([salvo]);
+      // as fotos já estão no navegador: evita rebaixá-las do Firebase
+      window._prodImgs = window._prodImgs || {};
+      window._prodImgs[salvo.id] = imgs;
 
       // reset form
       document.getElementById('product-brand').value = '';
@@ -2630,8 +2874,8 @@
       document.getElementById('product-tag').value = 'new';
       selectedSizes = [];
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-      uploadedImages = [null, null, null];
-      for (let i = 0; i < 3; i++) {
+      uploadedImages = new Array(MAX_PHOTOS).fill(null);
+      for (let i = 0; i < MAX_PHOTOS; i++) {
         const prev = document.getElementById('pprev-' + i);
         prev.src = ''; prev.style.display = 'none';
         document.getElementById('pph-' + i).style.display = 'flex';
@@ -2645,8 +2889,8 @@
 
     function deleteProduct(section, id) {
       if (!confirm('Remover este produto?')) return;
-      const arr = getProducts(section).filter(p => p.id !== id);
-      saveProducts(section, arr);
+      removeProductDoc(section, id);
+      _cache[section] = getProducts(section).filter(p => p.id !== id);
       renderAdminList();
       renderSection(section);
     }
@@ -2697,18 +2941,18 @@
 
     function saveEdit() {
       if (!_editSection || !_editId) return;
-      const arr = getProducts(_editSection).map(p => {
-        if (p.id !== _editId) return p;
-        return {
-          ...p,
-          brand: document.getElementById('edit-brand').value.trim(),
-          name:  document.getElementById('edit-name').value.trim()  || p.name,
-          price: document.getElementById('edit-price').value.trim(),
-          tag:   document.getElementById('edit-tag').value,
-          sizes: [..._editSizes].sort((a, b) => a - b),
-        };
-      });
-      saveProducts(_editSection, arr);
+      const current = getProducts(_editSection).find(p => p.id === _editId);
+      if (!current) return;
+      const updated = {
+        ...current,
+        brand: document.getElementById('edit-brand').value.trim(),
+        name:  document.getElementById('edit-name').value.trim()  || current.name,
+        price: document.getElementById('edit-price').value.trim(),
+        tag:   document.getElementById('edit-tag').value,
+        sizes: [..._editSizes].sort((a, b) => a - b),
+      };
+      saveProduct(_editSection, updated);
+      _cache[_editSection] = getProducts(_editSection).map(p => p.id === _editId ? updated : p);
       renderAdminList();
       renderSection(_editSection);
       closeEditModal();
@@ -2722,7 +2966,7 @@
         return;
       }
       list.innerHTML = arr.map(p => {
-        const thumb = (p.imgs && p.imgs[0]) || p.img || null;
+        const thumb = p.cover || (p.imgs && p.imgs[0]) || p.img || null;
         return `
         <div class="admin-product-item">
           ${thumb ? `<img src="${thumb}" alt="${p.name}" />` : '<div style="width:48px;height:48px;background:var(--surface);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">👟</div>'}
@@ -2757,10 +3001,18 @@
       if (emptyEl) emptyEl.style.display = 'none';
 
       window._prodImgs = window._prodImgs || {};
+      window._prodInfo = window._prodInfo || {};
 
       arr.forEach(p => {
-        const imgs = (p.imgs && p.imgs.length > 0) ? p.imgs : (p.img ? [p.img] : []);
-        window._prodImgs[p.id] = imgs;
+        const imgs = knownImgs(p);
+        const total = totalImgs(p);
+
+        // Se as fotos extras já foram baixadas nesta sessão, mantém — o card é recriado
+        // a cada atualização em tempo real e não faz sentido baixar tudo de novo.
+        const jaBaixadas = window._prodImgs[p.id];
+        const manter = jaBaixadas && jaBaixadas.length > imgs.length && jaBaixadas[0] === imgs[0];
+        window._prodImgs[p.id] = manter ? jaBaixadas : imgs;
+        window._prodInfo[p.id] = Object.assign(window._prodInfo[p.id] || { loading: null }, { section, total });
 
         const card = document.createElement('div');
         card.className = 'product-card dyn-card fade-in';
@@ -2777,11 +3029,11 @@
               <span class="pix-badge-off">OFF</span>
               <span class="pix-badge-pix">no PIX</span>
             </div>
-            ${imgs.length > 1 ? `
+            ${total > 1 ? `
             <div class="card-arrow left"  onclick="stepImg(${p.id},-1,event)">&#8249;</div>
             <div class="card-arrow right" onclick="stepImg(${p.id}, 1,event)">&#8250;</div>
             <div class="product-thumbs">
-              ${imgs.map((_, i) => `<div class="thumb${i===0?' active':''}" data-pid="${p.id}" data-idx="${i}" onclick="switchImg(${p.id},${i})"></div>`).join('')}
+              ${Array.from({ length: total }, (_, i) => `<div class="thumb${i===0?' active':''}" data-pid="${p.id}" data-idx="${i}" onclick="switchImg(${p.id},${i})"></div>`).join('')}
             </div>` : ''}
           </div>
           <div class="product-info">
@@ -2811,8 +3063,30 @@
       });
     }
 
-    function switchImg(pid, idx) {
-      const imgs = (window._prodImgs || {})[pid];
+    // Baixa as fotos extras do produto na primeira vez que o visitante pede para vê-las.
+    function ensureImgs(pid) {
+      const info = (window._prodInfo || {})[pid];
+      const atuais = (window._prodImgs || {})[pid] || [];
+      if (!info || atuais.length >= info.total) return Promise.resolve(atuais);
+      if (info.loading) return info.loading;
+
+      info.loading = mediaRef(info.section, pid).get()
+        .then(snap => {
+          const extra = (snap.exists && snap.data().imgs) || [];
+          window._prodImgs[pid] = atuais.slice(0, 1).concat(extra);
+          info.loading = null;
+          return window._prodImgs[pid];
+        })
+        .catch(err => {
+          console.error('Erro ao carregar as fotos do produto ' + pid + ':', err);
+          info.loading = null;
+          return atuais;
+        });
+      return info.loading;
+    }
+
+    async function switchImg(pid, idx) {
+      const imgs = await ensureImgs(pid);
       if (!imgs || !imgs[idx]) return;
       const mainImg = document.getElementById('mainimg-' + pid);
       if (mainImg) {
@@ -2826,13 +3100,13 @@
 
     function stepImg(pid, dir, e) {
       if (e) e.stopPropagation();
-      const imgs = (window._prodImgs || {})[pid];
-      if (!imgs || imgs.length < 2) return;
+      const info = (window._prodInfo || {})[pid];
+      const total = info ? info.total : ((window._prodImgs || {})[pid] || []).length;
+      if (total < 2) return;
       const thumbs = document.querySelectorAll(`.thumb[data-pid="${pid}"]`);
       let cur = 0;
       thumbs.forEach((t, i) => { if (t.classList.contains('active')) cur = i; });
-      const next = (cur + dir + imgs.length) % imgs.length;
-      switchImg(pid, next);
+      switchImg(pid, (cur + dir + total) % total);
     }
 
     // fechar ao clicar fora
@@ -2899,16 +3173,68 @@
     }
 
     // ─── INIT: sync com Firebase em tempo real ───
-    ['lancamentos', 'corrida-performance', 'corrida-iniciante', 'cross-academia', 'outlet'].forEach(section => {
-      db.collection('sections').doc(section).onSnapshot(doc => {
-        _cache[section] = doc.exists ? (doc.data().products || []) : [];
+    const _unsub = {}; // seção -> função que cancela o listener atual
+
+    function atualizarAdminSePreciso() {
+      if (document.getElementById('admin-main').style.display !== 'none') renderAdminList();
+    }
+
+    // modo 'novo'  = lê de sections/{secao}/products (um documento por produto)
+    // modo 'antigo' = lê do documento único da seção, enquanto a migração não rodou
+    function ouvirSection(section, modo) {
+      if (_unsub[section]) { _unsub[section](); _unsub[section] = null; }
+
+      if (modo === 'antigo') {
+        _unsub[section] = db.collection('sections').doc(section).onSnapshot(doc => {
+          _cache[section] = doc.exists ? (doc.data().products || []) : [];
+          renderSection(section);
+          atualizarAdminSePreciso();
+        }, err => console.error('Erro ao carregar ' + section + ' (formato antigo):', err));
+        return;
+      }
+
+      _unsub[section] = productsRef(section).orderBy('id').onSnapshot(snap => {
+        _cache[section] = snap.docs.map(d => d.data());
         renderSection(section);
-        if (document.getElementById('admin-main').style.display !== 'none') renderAdminList();
-      }, () => {
-        _cache[section] = JSON.parse(localStorage.getItem('zs_' + section) || '[]');
-        renderSection(section);
-      });
+        atualizarAdminSePreciso();
+      }, err => console.error('Erro ao carregar ' + section + ':', err));
+    }
+
+    // Decide o formato lendo a flag no documento da seção (documento pequeno, leitura pública).
+    async function conectarSections() {
+      for (const section of SECTIONS) {
+        let migrado = false;
+        try {
+          const snap = await db.collection('sections').doc(section).get();
+          migrado = !!(snap.exists && snap.data().migrated);
+        } catch (err) {
+          console.error('Não consegui checar o formato de ' + section + ':', err);
+        }
+        ouvirSection(section, migrado ? 'novo' : 'antigo');
+      }
+    }
+
+    // Sessão persistente: entra uma vez e continua logado neste navegador até clicar em Sair.
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .catch(err => console.error('Não consegui manter a sessão:', err));
+
+    firebase.auth().onAuthStateChanged(async user => {
+      aplicarEstadoAdmin();
+      if (!user) return;
+
+      // A migração escreve no banco, então só roda com alguém logado.
+      for (const section of SECTIONS) {
+        try {
+          await migrateLegacySection(section);
+          await splitProductMedia(section);
+        } catch (err) {
+          console.warn('[migração] falhou em ' + section + ':', err);
+        }
+      }
+      await conectarSections(); // reconecta já no formato novo
     });
+
+    conectarSections();
 
     // ─── KEYBOARD SHORTCUT: Ctrl+Shift+A para abrir admin ───
     document.addEventListener('keydown', (e) => {

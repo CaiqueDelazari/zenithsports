@@ -1931,6 +1931,55 @@
     .admin-mover:focus { border-color: var(--accent); }
 
     /* ─── BARRA DE FILTROS ─── */
+    .filtros-topo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .filtros-titulo {
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    #filtro-resumo {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.74rem;
+      color: var(--accent);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    #filtro-toggle {
+      flex-shrink: 0;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--text-muted);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    #filtro-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+    #filtros-corpo {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
     #filtros-bar {
       background: rgba(10,10,10,0.97);
       border-top: 1px solid var(--border);
@@ -2215,21 +2264,28 @@
   <div id="filtros-spacer" style="height:0"></div>
   <div id="filtros-bar">
     <div class="filtros-inner">
-      <div class="filtro-linha">
-        <span class="filtro-label">Categoria</span>
-        <div class="filtro-chips" id="chips-categoria"></div>
+      <div class="filtros-topo">
+        <span class="filtros-titulo">Filtros</span>
+        <span id="filtro-resumo"></span>
+        <button id="filtro-toggle" onclick="alternarFiltros()">Minimizar ▴</button>
       </div>
-      <div class="filtro-linha" id="linha-marca">
-        <span class="filtro-label">Marca</span>
-        <div class="filtro-chips" id="chips-marca"></div>
-      </div>
-      <div class="filtro-linha" id="linha-numero">
-        <span class="filtro-label">Numeração</span>
-        <div class="filtro-chips" id="chips-numero"></div>
-      </div>
-      <div class="filtro-rodape">
-        <span id="filtro-contador"></span>
-        <button id="filtro-limpar" onclick="limparFiltros()">Limpar filtros ✕</button>
+      <div id="filtros-corpo">
+        <div class="filtro-linha">
+          <span class="filtro-label">Categoria</span>
+          <div class="filtro-chips" id="chips-categoria"></div>
+        </div>
+        <div class="filtro-linha" id="linha-marca">
+          <span class="filtro-label">Marca</span>
+          <div class="filtro-chips" id="chips-marca"></div>
+        </div>
+        <div class="filtro-linha" id="linha-numero">
+          <span class="filtro-label">Numeração</span>
+          <div class="filtro-chips" id="chips-numero"></div>
+        </div>
+        <div class="filtro-rodape">
+          <span id="filtro-contador"></span>
+          <button id="filtro-limpar" onclick="limparFiltros()">Limpar filtros ✕</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2497,6 +2553,24 @@
             <input type="text" id="nova-cat-nome" placeholder="Nome (ex: Basquete)" />
             <input type="text" id="nova-cat-rotulo" placeholder="Rótulo pequeno (opcional)" />
             <button onclick="criarCategoria()">+ Criar categoria</button>
+          </div>
+        </details>
+
+        <!-- MARCAS DA LOJA -->
+        <details class="admin-cats">
+          <summary>Marcas que trabalhamos</summary>
+          <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.6rem;">
+            Esta é a faixa exibida no site. Deixando a lista vazia, ela volta a mostrar
+            sozinha as marcas dos produtos cadastrados.
+          </p>
+          <div id="lista-marcas"></div>
+          <div class="admin-cat-nova">
+            <input type="text" id="nova-marca" placeholder="Nome da marca (ex: Asics)"
+                   onkeydown="if(event.key==='Enter') adicionarMarca()" />
+            <button onclick="adicionarMarca()">+ Adicionar</button>
+            <button onclick="puxarMarcasDosProdutos()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);">
+              Puxar dos produtos
+            </button>
           </div>
         </details>
 
@@ -2811,20 +2885,123 @@
       });
     }
 
-    // A faixa "Marcas que trabalhamos" também sai dos produtos cadastrados.
+    // ─── MARCAS DA LOJA (faixa "Marcas que trabalhamos") ───
+    // Lista editada no painel, guardada em config/marcas. Fica separada das marcas
+    // dos produtos de propósito: a loja pode trabalhar com uma marca que no momento
+    // não tem nenhum par em estoque.
+    let MARCAS_LOJA = [];
+
+    async function carregarMarcasLoja() {
+      try {
+        const snap = await db.collection('config').doc('marcas').get();
+        const lista = snap.exists ? snap.data().lista : null;
+        MARCAS_LOJA = Array.isArray(lista) ? lista.filter(m => String(m || '').trim()) : [];
+      } catch (err) {
+        console.error('Não consegui ler as marcas da loja:', err);
+        MARCAS_LOJA = [];
+      }
+    }
+
+    // lista vazia = volta a puxar sozinha das marcas dos produtos
+    function marcasDaFaixa() {
+      if (MARCAS_LOJA.length) return MARCAS_LOJA.slice();
+      return marcasDisponiveis().map(par => par[1]);
+    }
+
     function montarFaixaMarcas() {
       const grid = document.querySelector('.brands-grid');
       if (!grid) return;
-      const marcas = marcasDisponiveis();
+      const marcas = marcasDaFaixa();
       grid.innerHTML = '';
-      marcas.forEach(par => {
+      marcas.forEach(nome => {
         const d = document.createElement('div');
         d.className = 'brand-item';
-        d.textContent = par[1];
+        d.textContent = nome;
         grid.appendChild(d);
       });
       const secao = document.getElementById('marcas');
       if (secao) secao.style.display = marcas.length ? '' : 'none';
+    }
+
+    async function salvarMarcasLoja(lista) {
+      try {
+        await db.collection('config').doc('marcas').set({ lista: lista }, { merge: true });
+      } catch (err) {
+        alert('Não consegui salvar as marcas: ' + err.message);
+        return false;
+      }
+      MARCAS_LOJA = lista;
+      renderListaMarcas();
+      montarFaixaMarcas();
+      return true;
+    }
+
+    function renderListaMarcas() {
+      const el = document.getElementById('lista-marcas');
+      if (!el) return;
+      el.innerHTML = '';
+
+      if (!MARCAS_LOJA.length) {
+        el.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;">' +
+          'Nenhuma marca na lista — a faixa está mostrando as marcas dos produtos.</p>';
+        return;
+      }
+
+      MARCAS_LOJA.forEach((nome, i) => {
+        const linha = document.createElement('div');
+        linha.className = 'cat-item';
+        linha.innerHTML =
+          '<div class="cat-info"><div class="cat-nome"></div></div>' +
+          '<div class="cat-acoes">' +
+            '<button title="Subir"' + (i === 0 ? ' disabled' : '') + '>\u2191</button>' +
+            '<button title="Descer"' + (i === MARCAS_LOJA.length - 1 ? ' disabled' : '') + '>\u2193</button>' +
+            '<button title="Remover" class="cat-del">\u2715</button>' +
+          '</div>';
+        linha.querySelector('.cat-nome').textContent = nome;
+        const bts = linha.querySelectorAll('button');
+        bts[0].onclick = () => moverMarca(i, -1);
+        bts[1].onclick = () => moverMarca(i, 1);
+        bts[2].onclick = () => removerMarca(nome);
+        el.appendChild(linha);
+      });
+    }
+
+    async function adicionarMarca() {
+      const input = document.getElementById('nova-marca');
+      const nome = input.value.trim();
+      if (!nome) { alert('Digite o nome da marca.'); return; }
+      if (MARCAS_LOJA.some(m => m.toLowerCase() === nome.toLowerCase())) {
+        alert('"' + nome + '" já está na lista.');
+        return;
+      }
+      if (await salvarMarcasLoja(MARCAS_LOJA.concat([nome]))) input.value = '';
+    }
+
+    async function removerMarca(nome) {
+      if (!confirm('Tirar "' + nome + '" da faixa de marcas?')) return;
+      await salvarMarcasLoja(MARCAS_LOJA.filter(m => m !== nome));
+    }
+
+    async function moverMarca(i, dir) {
+      const j = i + dir;
+      if (j < 0 || j >= MARCAS_LOJA.length) return;
+      const nova = MARCAS_LOJA.slice();
+      const tmp = nova[i]; nova[i] = nova[j]; nova[j] = tmp;
+      await salvarMarcasLoja(nova);
+    }
+
+    // Atalho: joga na lista as marcas que aparecem nos produtos cadastrados.
+    async function puxarMarcasDosProdutos() {
+      const dosProdutos = marcasDisponiveis().map(par => par[1]);
+      if (!dosProdutos.length) { alert('Nenhum produto tem marca preenchida.'); return; }
+
+      const juntas = MARCAS_LOJA.slice();
+      dosProdutos.forEach(m => {
+        if (!juntas.some(x => x.toLowerCase() === m.toLowerCase())) juntas.push(m);
+      });
+
+      if (juntas.length === MARCAS_LOJA.length) { alert('A lista já tem todas as marcas dos produtos.'); return; }
+      await salvarMarcasLoja(juntas);
     }
 
     function montarAbasAdmin() {
@@ -3181,6 +3358,8 @@
         const quem = document.getElementById('admin-quem');
         if (quem) quem.textContent = user.email || '';
         renderAdminList();
+        renderListaCategorias();
+        renderListaMarcas();
       }
     }
 
@@ -3713,6 +3892,50 @@
       aplicarFiltros();
     }
 
+    // ─── minimizar a barra de filtros ───
+    let _filtrosMinimizados = false;
+    try { _filtrosMinimizados = localStorage.getItem('zs_filtros_min') === '1'; } catch (e) {}
+
+    function alternarFiltros() {
+      _filtrosMinimizados = !_filtrosMinimizados;
+      try { localStorage.setItem('zs_filtros_min', _filtrosMinimizados ? '1' : '0'); } catch (e) {}
+      aplicarEstadoBarraFiltros();
+    }
+
+    function aplicarEstadoBarraFiltros() {
+      const corpo = document.getElementById('filtros-corpo');
+      const bt = document.getElementById('filtro-toggle');
+      if (!corpo || !bt) return;
+      corpo.style.display = _filtrosMinimizados ? 'none' : '';
+      bt.textContent = _filtrosMinimizados ? 'Mostrar filtros \u25be' : 'Minimizar \u25b4';
+      atualizarResumoFiltros();
+      // a barra mudou de altura: faz a fixação remedir onde ela começa
+      window.dispatchEvent(new Event('resize'));
+    }
+
+    // Com a barra fechada, mostra ao lado o que está filtrado — senão o visitante
+    // esquece que há filtro ligado e acha que o site está sem produto.
+    function atualizarResumoFiltros() {
+      const el = document.getElementById('filtro-resumo');
+      if (!el) return;
+      if (!_filtrosMinimizados) { el.textContent = ''; return; }
+
+      const partes = [];
+      if (_filtros.categoria !== 'todas') {
+        const c = CATEGORIAS.find(x => x.id === _filtros.categoria);
+        partes.push(c ? c.nome : _filtros.categoria);
+      }
+      if (_filtros.marca !== 'todas') {
+        const m = marcasDisponiveis().find(par => par[0] === _filtros.marca);
+        partes.push(m ? m[1] : _filtros.marca);
+      }
+      if (_filtros.numero !== 'todas') partes.push('nº ' + _filtros.numero);
+
+      const total = idsCategorias().reduce((s, sec) => s + produtosVisiveis(sec).length, 0);
+      el.textContent = (partes.length ? partes.join(' · ') + ' — ' : '') +
+                       total + (total === 1 ? ' produto' : ' produtos');
+    }
+
     function criarChip(rotulo, ativo, aoClicar) {
       const b = document.createElement('button');
       b.type = 'button';
@@ -3762,6 +3985,7 @@
       // aqui e nao no aplicarFiltros: assim a faixa tambem se monta quando os
       // produtos chegam do Firebase, nao so quando alguem clica num filtro
       montarFaixaMarcas();
+      atualizarResumoFiltros();
     }
 
     // Redesenha uma seção e esconde a seção inteira se o filtro não deixou nada nela.
@@ -3889,10 +4113,13 @@
     });
 
     (async () => {
+      aplicarEstadoBarraFiltros();
       await carregarCategorias();
+      await carregarMarcasLoja();
       montarSecoes();
       montarAbasAdmin();
       renderListaCategorias();
+      renderListaMarcas();
       atualizarFiltrosUI();
       await conectarSections();
     })();

@@ -48,6 +48,13 @@ service cloud.firestore {
       allow write: if ehAdmin();
     }
 
+    // Ajustes do site editados no painel (hoje: a faixa "Marcas que trabalhamos").
+    // Leitura publica porque aparece na pagina; escrita so do admin.
+    match /config/{doc} {
+      allow read:  if true;
+      allow write: if ehAdmin();
+    }
+
     // Copia de seguranca da migracao: nem leitura publica.
     match /sections_backup/{secao} {
       allow read, write: if ehAdmin();

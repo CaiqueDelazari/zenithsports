@@ -1826,6 +1826,131 @@
       border-top: 1px solid var(--border);
     }
 
+    /* ─── BARRA DE FILTROS ─── */
+    #filtros-bar {
+      background: rgba(10,10,10,0.97);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid rgba(200,240,0,0.15);
+    }
+
+    /* position:sticky não funciona aqui porque o body usa overflow-x:hidden,
+       então a fixação é feita por JS trocando esta classe. */
+    #filtros-bar.fixo {
+      position: fixed;
+      left: 0; right: 0;
+      z-index: 90;
+      backdrop-filter: blur(18px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    }
+
+    .filtros-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0.9rem 4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .filtro-linha {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .filtro-label {
+      flex-shrink: 0;
+      width: 92px;
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .filtro-chips {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .filtro-chips::-webkit-scrollbar { display: none; }
+
+    .filtro-chip {
+      flex-shrink: 0;
+      padding: 0.28rem 0.8rem;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .filtro-chip:hover {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .filtro-chip.ativo {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #080808;
+    }
+
+    .filtro-rodape {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-top: 0.15rem;
+    }
+
+    #filtro-contador {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    #filtro-contador strong { color: var(--accent); }
+
+    #filtro-limpar {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    #filtro-limpar:hover { color: var(--accent); }
+
+    #filtro-vazio {
+      padding: 4rem 1.5rem;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    #filtro-vazio .fv-icone { font-size: 2.5rem; opacity: 0.35; margin-bottom: 0.75rem; }
+    #filtro-vazio p { font-size: 0.92rem; line-height: 1.7; }
+
+    @media (max-width: 900px) {
+      .filtros-inner { padding: 0.75rem 1.5rem; gap: 0.5rem; }
+      .filtro-linha { align-items: flex-start; flex-direction: column; gap: 0.35rem; }
+      .filtro-label { width: auto; }
+      .filtro-chips { flex-wrap: nowrap; width: 100%; padding-bottom: 2px; }
+    }
+
     /* ─── MOBILE ─── */
     @media (max-width: 900px) {
       nav { padding: 1rem 1.5rem; }
@@ -1984,6 +2109,34 @@
       <div class="marquee-item">Agudos · SP <span class="marquee-dot"></span></div>
       <div class="marquee-item">Zenith Sports <span class="marquee-dot"></span></div>
     </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div id="filtros-spacer" style="height:0"></div>
+  <div id="filtros-bar">
+    <div class="filtros-inner">
+      <div class="filtro-linha">
+        <span class="filtro-label">Categoria</span>
+        <div class="filtro-chips" id="chips-categoria"></div>
+      </div>
+      <div class="filtro-linha" id="linha-marca">
+        <span class="filtro-label">Marca</span>
+        <div class="filtro-chips" id="chips-marca"></div>
+      </div>
+      <div class="filtro-linha" id="linha-numero">
+        <span class="filtro-label">Numeração</span>
+        <div class="filtro-chips" id="chips-numero"></div>
+      </div>
+      <div class="filtro-rodape">
+        <span id="filtro-contador"></span>
+        <button id="filtro-limpar" onclick="limparFiltros()">Limpar filtros ✕</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="filtro-vazio" style="display:none">
+    <div class="fv-icone">👟</div>
+    <p>Nenhum tênis com esses filtros.<br>Tente outra combinação ou limpe os filtros.</p>
   </div>
 
   <!-- LANÇAMENTOS -->
@@ -2455,10 +2608,16 @@
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function (e) {
         const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-          e.preventDefault();
-          target.scrollIntoView({ behavior: 'smooth' });
+        if (!target) return;
+        e.preventDefault();
+
+        // se o filtro escondeu a seção, limpa antes de rolar — senão o menu não faz nada
+        if (getComputedStyle(target).display === 'none' && typeof limparFiltros === 'function') {
+          limparFiltros();
+          setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 60);
+          return;
         }
+        target.scrollIntoView({ behavior: 'smooth' });
       });
     });
 
@@ -2884,7 +3043,8 @@
       }
 
       renderAdminList();
-      renderSection(currentSection);
+      atualizarSecao(currentSection);
+      atualizarFiltrosUI();
     }
 
     function deleteProduct(section, id) {
@@ -2892,7 +3052,8 @@
       removeProductDoc(section, id);
       _cache[section] = getProducts(section).filter(p => p.id !== id);
       renderAdminList();
-      renderSection(section);
+      atualizarSecao(section);
+      atualizarFiltrosUI();
     }
 
     let _editSection = null;
@@ -2954,7 +3115,8 @@
       saveProduct(_editSection, updated);
       _cache[_editSection] = getProducts(_editSection).map(p => p.id === _editId ? updated : p);
       renderAdminList();
-      renderSection(_editSection);
+      atualizarSecao(_editSection);
+      atualizarFiltrosUI();
       closeEditModal();
     }
 
@@ -2987,14 +3149,15 @@
     function renderSection(section) {
       const grid = document.getElementById('grid-' + section);
       if (!grid) return;
-      const arr = getProducts(section);
+      const arr = produtosVisiveis(section);
       const emptyEl = document.getElementById('empty-' + section);
 
       // remove old dynamic cards
       grid.querySelectorAll('.dyn-card').forEach(c => c.remove());
 
       if (arr.length === 0) {
-        if (emptyEl) emptyEl.style.display = 'block';
+        // com filtro ativo, seção vazia é só falta de resultado — não mostra "Adicionar"
+        if (emptyEl) emptyEl.style.display = filtroAtivo() ? 'none' : 'block';
         return;
       }
 
@@ -3172,6 +3335,169 @@
       if (shoeState === 2) wrap.classList.add('slow');
     }
 
+    // ─── FILTROS (categoria / marca / numeração) ───
+    const _filtros = { categoria: 'todas', marca: 'todas', numero: 'todas' };
+
+    const rotuloSecao = {
+      lancamentos: 'Lançamentos',
+      'corrida-performance': 'Corrida Performance',
+      'corrida-iniciante': 'Corrida Iniciante',
+      'cross-academia': 'Cross / Academia',
+      outlet: 'Outlet'
+    };
+
+    function filtroAtivo() {
+      return _filtros.categoria !== 'todas'
+          || _filtros.marca !== 'todas'
+          || _filtros.numero !== 'todas';
+    }
+
+    // O admin digita a marca livremente, então "Nike" e "nike " são a mesma coisa.
+    function normalizarMarca(m) {
+      return (m || '').trim().toLowerCase();
+    }
+
+    function produtoPassa(p) {
+      if (_filtros.marca !== 'todas' && normalizarMarca(p.brand) !== _filtros.marca) return false;
+      if (_filtros.numero !== 'todas') {
+        const nums = (p.sizes || []).map(Number);
+        if (!nums.includes(Number(_filtros.numero))) return false;
+      }
+      return true;
+    }
+
+    function produtosVisiveis(section) {
+      if (_filtros.categoria !== 'todas' && _filtros.categoria !== section) return [];
+      return getProducts(section).filter(produtoPassa);
+    }
+
+    // As opções saem dos produtos cadastrados: marca nova vira botão sozinha.
+    function marcasDisponiveis() {
+      const mapa = new Map();
+      SECTIONS.forEach(s => getProducts(s).forEach(p => {
+        const norm = normalizarMarca(p.brand);
+        if (norm && !mapa.has(norm)) mapa.set(norm, p.brand.trim());
+      }));
+      return [...mapa.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
+    }
+
+    function numerosDisponiveis() {
+      const set = new Set();
+      SECTIONS.forEach(s => getProducts(s).forEach(p => {
+        (p.sizes || []).forEach(n => { if (n || n === 0) set.add(Number(n)); });
+      }));
+      return [...set].sort((a, b) => a - b);
+    }
+
+    function setFiltro(qual, valor) {
+      _filtros[qual] = valor;
+      aplicarFiltros();
+    }
+
+    function limparFiltros() {
+      _filtros.categoria = 'todas';
+      _filtros.marca = 'todas';
+      _filtros.numero = 'todas';
+      aplicarFiltros();
+    }
+
+    function criarChip(rotulo, ativo, aoClicar) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'filtro-chip' + (ativo ? ' ativo' : '');
+      b.textContent = rotulo;
+      b.onclick = aoClicar;
+      return b;
+    }
+
+    function atualizarFiltrosUI() {
+      const cats = document.getElementById('chips-categoria');
+      if (!cats) return;
+      const mars = document.getElementById('chips-marca');
+      const nums = document.getElementById('chips-numero');
+
+      cats.innerHTML = '';
+      cats.appendChild(criarChip('Todas', _filtros.categoria === 'todas', () => setFiltro('categoria', 'todas')));
+      SECTIONS.forEach(s => {
+        cats.appendChild(criarChip(rotuloSecao[s] || s, _filtros.categoria === s, () => setFiltro('categoria', s)));
+      });
+
+      const marcas = marcasDisponiveis();
+      mars.innerHTML = '';
+      mars.appendChild(criarChip('Todas', _filtros.marca === 'todas', () => setFiltro('marca', 'todas')));
+      marcas.forEach(([norm, rotulo]) => {
+        mars.appendChild(criarChip(rotulo, _filtros.marca === norm, () => setFiltro('marca', norm)));
+      });
+
+      const numeros = numerosDisponiveis();
+      nums.innerHTML = '';
+      nums.appendChild(criarChip('Todas', _filtros.numero === 'todas', () => setFiltro('numero', 'todas')));
+      numeros.forEach(n => {
+        nums.appendChild(criarChip(String(n), String(_filtros.numero) === String(n), () => setFiltro('numero', n)));
+      });
+
+      // linha sem opção nenhuma não precisa aparecer
+      document.getElementById('linha-marca').style.display  = marcas.length  ? '' : 'none';
+      document.getElementById('linha-numero').style.display = numeros.length ? '' : 'none';
+
+      const total = SECTIONS.reduce((soma, s) => soma + produtosVisiveis(s).length, 0);
+      document.getElementById('filtro-contador').innerHTML =
+        '<strong>' + total + '</strong> ' + (total === 1 ? 'produto' : 'produtos');
+      document.getElementById('filtro-limpar').style.display = filtroAtivo() ? '' : 'none';
+      document.getElementById('filtro-vazio').style.display =
+        (filtroAtivo() && total === 0) ? 'block' : 'none';
+    }
+
+    // Redesenha uma seção e esconde a seção inteira se o filtro não deixou nada nela.
+    function atualizarSecao(section) {
+      renderSection(section);
+      const el = document.getElementById(section);
+      if (!el) return;
+      const vazia = produtosVisiveis(section).length === 0;
+      el.style.display = (filtroAtivo() && vazia) ? 'none' : '';
+    }
+
+    function aplicarFiltros() {
+      SECTIONS.forEach(atualizarSecao);
+      atualizarFiltrosUI();
+    }
+
+    // Fixa a barra no topo ao rolar. Feito na mão porque o body tem overflow-x:hidden,
+    // o que quebra position:sticky.
+    (function fixarBarraFiltros() {
+      const bar    = document.getElementById('filtros-bar');
+      const spacer = document.getElementById('filtros-spacer');
+      const nav    = document.getElementById('navbar');
+      if (!bar || !spacer || !nav) return;
+      let topoOriginal = null;
+
+      function atualizar() {
+        const navH = nav.offsetHeight;
+        if (topoOriginal === null && !bar.classList.contains('fixo')) {
+          topoOriginal = bar.getBoundingClientRect().top + window.scrollY;
+        }
+        const deveFixar = window.scrollY + navH >= topoOriginal;
+
+        if (deveFixar && !bar.classList.contains('fixo')) {
+          spacer.style.height = bar.offsetHeight + 'px';
+          bar.classList.add('fixo');
+        } else if (!deveFixar && bar.classList.contains('fixo')) {
+          bar.classList.remove('fixo');
+          spacer.style.height = '0px';
+        }
+        if (bar.classList.contains('fixo')) bar.style.top = navH + 'px';
+      }
+
+      window.addEventListener('scroll', atualizar, { passive: true });
+      window.addEventListener('resize', () => {
+        bar.classList.remove('fixo');
+        spacer.style.height = '0px';
+        topoOriginal = null;
+        atualizar();
+      });
+      atualizar();
+    })();
+
     // ─── INIT: sync com Firebase em tempo real ───
     const _unsub = {}; // seção -> função que cancela o listener atual
 
@@ -3187,7 +3513,8 @@
       if (modo === 'antigo') {
         _unsub[section] = db.collection('sections').doc(section).onSnapshot(doc => {
           _cache[section] = doc.exists ? (doc.data().products || []) : [];
-          renderSection(section);
+          atualizarSecao(section);
+          atualizarFiltrosUI();
           atualizarAdminSePreciso();
         }, err => console.error('Erro ao carregar ' + section + ' (formato antigo):', err));
         return;
@@ -3195,7 +3522,8 @@
 
       _unsub[section] = productsRef(section).orderBy('id').onSnapshot(snap => {
         _cache[section] = snap.docs.map(d => d.data());
-        renderSection(section);
+        atualizarSecao(section);
+        atualizarFiltrosUI();
         atualizarAdminSePreciso();
       }, err => console.error('Erro ao carregar ' + section + ':', err));
     }
@@ -3234,6 +3562,7 @@
       await conectarSections(); // reconecta já no formato novo
     });
 
+    atualizarFiltrosUI();
     conectarSections();
 
     // ─── KEYBOARD SHORTCUT: Ctrl+Shift+A para abrir admin ───

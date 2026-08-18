@@ -1826,6 +1826,110 @@
       border-top: 1px solid var(--border);
     }
 
+    /* ─── CATEGORIAS NO PAINEL ─── */
+    .admin-cats {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .admin-cats summary {
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .admin-cats summary:hover { color: var(--accent); }
+    .admin-cats[open] summary { margin-bottom: 0.75rem; }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cat-item:last-of-type { border-bottom: none; }
+    .cat-info { flex: 1; min-width: 0; }
+    .cat-nome { font-size: 0.88rem; font-weight: 600; }
+    .cat-qtd { font-size: 0.72rem; color: var(--text-muted); }
+
+    .cat-acoes { display: flex; gap: 0.3rem; flex-shrink: 0; }
+
+    .cat-acoes button {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: 'Barlow', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .cat-acoes button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .cat-acoes button:disabled { opacity: 0.25; cursor: default; }
+    .cat-acoes button.cat-del:hover:not(:disabled) { border-color: #ff4444; color: #ff4444; }
+
+    .admin-cat-nova {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .admin-cat-nova input {
+      flex: 1;
+      min-width: 120px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      color: var(--text);
+      font-size: 0.82rem;
+      font-family: 'Barlow', sans-serif;
+      outline: none;
+    }
+
+    .admin-cat-nova input:focus { border-color: var(--accent); }
+
+    .admin-cat-nova button {
+      background: var(--accent);
+      color: #080808;
+      border: none;
+      border-radius: 8px;
+      padding: 0.5rem 0.9rem;
+      font-weight: 700;
+      font-size: 0.78rem;
+      font-family: 'Barlow', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .admin-mover {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-family: 'Barlow', sans-serif;
+      padding: 0.35rem 0.4rem;
+      cursor: pointer;
+      outline: none;
+      max-width: 120px;
+    }
+
+    .admin-mover:focus { border-color: var(--accent); }
+
     /* ─── BARRA DE FILTROS ─── */
     #filtros-bar {
       background: rgba(10,10,10,0.97);
@@ -2021,11 +2125,7 @@
     </button>
     <ul class="nav-links" id="nav-links">
       <li><a href="#sobre">Sobre</a></li>
-      <li><a href="#lancamentos">Lançamentos</a></li>
-      <li><a href="#corrida-performance">Corrida Performance</a></li>
-      <li><a href="#corrida-iniciante">Corrida Iniciante</a></li>
-      <li><a href="#cross-academia">Cross / Academia</a></li>
-      <li><a href="#outlet">Outlet</a></li>
+      <li id="nav-cat-anchor" style="display:none"></li>
       <li><a href="#marcas">Marcas</a></li>
       <li><a href="#horarios">Horários</a></li>
       <li><a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="nav-cta">Seguir</a></li>
@@ -2048,7 +2148,7 @@
         Atendimento personalizado e envio para todo o Brasil.
       </p>
       <div class="hero-actions">
-        <a href="#lancamentos" class="btn-primary">Ver Lançamentos →</a>
+        <a href="#secoes-produtos" class="btn-primary">Ver Produtos →</a>
       </div>
     </div>
 
@@ -2139,116 +2239,13 @@
     <p>Nenhum tênis com esses filtros.<br>Tente outra combinação ou limpe os filtros.</p>
   </div>
 
-  <!-- LANÇAMENTOS -->
-  <section id="lancamentos">
-    <div class="launches-header fade-in">
-      <div>
-        <div class="section-label">Novidades</div>
-        <h2 class="section-title">Lançamentos em<br>destaque</h2>
-      </div>
-      <a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="btn-ghost">Ver todos no Instagram →</a>
-    </div>
-    <div class="dynamic-grid" id="grid-lancamentos">
-      <div class="empty-state" id="empty-lancamentos">
-        <div class="placeholder-slots">
-          <div class="slot-card" onclick="openAdminSection('lancamentos')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('lancamentos')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('lancamentos')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('lancamentos')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <!-- SEÇÕES DE PRODUTO (geradas por JS a partir das categorias do banco) -->
+  <div id="secoes-produtos"></div>
 
   <!-- MARCAS -->
   <section id="marcas">
     <p class="brands-label">Marcas que trabalhamos</p>
-    <div class="brands-grid">
-      <div class="brand-item">Nike</div>
-      <div class="brand-item">Mizuno</div>
-      <div class="brand-item">Under Armour</div>
-      <div class="brand-item">Olympikus</div>
-    </div>
-  </section>
-
-  <!-- CORRIDA PERFORMANCE -->
-  <section id="corrida-performance" style="background: var(--surface); border-top: 1px solid var(--border);">
-    <div class="launches-header fade-in">
-      <div>
-        <div class="section-label">Performance</div>
-        <h2 class="section-title">Corrida Performance</h2>
-      </div>
-    </div>
-    <div class="dynamic-grid" id="grid-corrida-performance">
-      <div class="empty-state" id="empty-corrida-performance">
-        <div class="placeholder-slots">
-          <div class="slot-card" onclick="openAdminSection('corrida-performance')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('corrida-performance')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('corrida-performance')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('corrida-performance')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CORRIDA INICIANTE -->
-  <section id="corrida-iniciante" style="background: var(--bg); border-top: 1px solid var(--border);">
-    <div class="launches-header fade-in">
-      <div>
-        <div class="section-label">Iniciante</div>
-        <h2 class="section-title">Corrida Iniciante</h2>
-      </div>
-    </div>
-    <div class="dynamic-grid" id="grid-corrida-iniciante">
-      <div class="empty-state" id="empty-corrida-iniciante">
-        <div class="placeholder-slots">
-          <div class="slot-card" onclick="openAdminSection('corrida-iniciante')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('corrida-iniciante')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('corrida-iniciante')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('corrida-iniciante')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- CROSS / ACADEMIA -->
-  <section id="cross-academia" style="background: var(--surface); border-top: 1px solid var(--border);">
-    <div class="launches-header fade-in">
-      <div>
-        <div class="section-label">Treino</div>
-        <h2 class="section-title">Cross / Academia</h2>
-      </div>
-    </div>
-    <div class="dynamic-grid" id="grid-cross-academia">
-      <div class="empty-state" id="empty-cross-academia">
-        <div class="placeholder-slots">
-          <div class="slot-card" onclick="openAdminSection('cross-academia')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('cross-academia')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('cross-academia')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('cross-academia')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- OUTLET -->
-  <section id="outlet" style="background: var(--bg); border-top: 1px solid var(--border);">
-    <div class="launches-header fade-in">
-      <div>
-        <div class="section-label">Promoções</div>
-        <h2 class="section-title">Outlet</h2>
-      </div>
-    </div>
-    <div class="dynamic-grid" id="grid-outlet">
-      <div class="empty-state" id="empty-outlet">
-        <div class="placeholder-slots">
-          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-          <div class="slot-card" onclick="openAdminSection('outlet')"><div class="slot-plus">+</div><span>Adicionar</span></div>
-        </div>
-      </div>
-    </div>
+    <div class="brands-grid"></div>
   </section>
 
   <!-- HORÁRIOS -->
@@ -2380,7 +2377,7 @@
         <h4>Navegação</h4>
         <ul>
           <li><a href="#sobre">Sobre nós</a></li>
-          <li><a href="#lancamentos">Lançamentos</a></li>
+          <li><a href="#secoes-produtos">Produtos</a></li>
           <li><a href="#marcas">Marcas</a></li>
           <li><a href="#horarios">Horários</a></li>
           <li><a href="#instagram">Instagram</a></li>
@@ -2492,14 +2489,19 @@
           &middot; <a href="#" onclick="sairAdmin();return false;" style="color:var(--text-muted);">Sair</a>
         </p>
 
+        <!-- CATEGORIAS -->
+        <details class="admin-cats">
+          <summary>Gerenciar categorias</summary>
+          <div id="lista-categorias"></div>
+          <div class="admin-cat-nova">
+            <input type="text" id="nova-cat-nome" placeholder="Nome (ex: Basquete)" />
+            <input type="text" id="nova-cat-rotulo" placeholder="Rótulo pequeno (opcional)" />
+            <button onclick="criarCategoria()">+ Criar categoria</button>
+          </div>
+        </details>
+
         <!-- ABAS DE SEÇÃO -->
-        <div class="admin-section-tabs">
-          <button class="admin-tab active" onclick="selectSection('lancamentos', this)">Lançamentos</button>
-          <button class="admin-tab" onclick="selectSection('corrida-performance', this)">Corrida Performance</button>
-          <button class="admin-tab" onclick="selectSection('corrida-iniciante', this)">Corrida Iniciante</button>
-          <button class="admin-tab" onclick="selectSection('cross-academia', this)">Cross / Academia</button>
-          <button class="admin-tab" onclick="selectSection('outlet', this)">Outlet</button>
-        </div>
+        <div class="admin-section-tabs"></div>
 
         <!-- FORMULÁRIO DE NOVO PRODUTO -->
         <div class="admin-form">
@@ -2683,10 +2685,323 @@
       appId: "1:719909659001:web:a8571bf59d161a4cdd4fa8"
     });
     const db = firebase.firestore();
-    const SECTIONS = ['lancamentos', 'corrida-performance', 'corrida-iniciante', 'cross-academia', 'outlet'];
     const DOC_SAFE_LIMIT = 950000; // Firestore corta em 1 MiB por documento; margem de segurança
 
-    const _cache = { lancamentos: [], 'corrida-performance': [], 'corrida-iniciante': [], 'cross-academia': [], outlet: [] };
+    // As categorias vivem no Firestore, um documento em sections/{id} com nome, rótulo
+    // e ordem. O que estiver aqui embaixo é só o nome bonito das cinco originais, para
+    // o site continuar de pé caso o documento ainda não tenha esses campos.
+    const CATS_PADRAO = [
+      { id: 'lancamentos',         nome: 'Lançamentos',        rotulo: 'Novidades' },
+      { id: 'corrida-performance', nome: 'Corrida Performance', rotulo: 'Performance' },
+      { id: 'corrida-iniciante',   nome: 'Corrida Iniciante',   rotulo: 'Iniciante' },
+      { id: 'cross-academia',      nome: 'Cross / Academia',    rotulo: 'Treino' },
+      { id: 'outlet',              nome: 'Outlet',              rotulo: 'Promoções' }
+    ];
+
+    let CATEGORIAS = [];
+    const _cache = {};
+
+    function idsCategorias() {
+      return CATEGORIAS.map(c => c.id);
+    }
+
+    function escaparHTML(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // Vira "Cross / Academia" -> "cross-academia". O id é o endereço da seção na URL
+    // e o nome do documento, então só letras sem acento, números e hífen.
+    function gerarIdCategoria(nome) {
+      return String(nome || '')
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 40);
+    }
+
+    async function carregarCategorias() {
+      let docs = [];
+      try {
+        const snap = await db.collection('sections').get();
+        docs = snap.docs.map(d => Object.assign({ id: d.id }, d.data() || {}));
+      } catch (err) {
+        console.error('Não consegui ler as categorias:', err);
+      }
+
+      // banco vazio (ou leitura falhou): cai nas cinco originais para não ficar sem site
+      if (!docs.length) docs = CATS_PADRAO.map(c => Object.assign({}, c));
+
+      CATEGORIAS = docs.map(d => {
+        const padrao = CATS_PADRAO.find(p => p.id === d.id);
+        const iPadrao = CATS_PADRAO.findIndex(p => p.id === d.id);
+        return {
+          id: d.id,
+          nome: d.nome || (padrao && padrao.nome) || d.id,
+          rotulo: d.rotulo !== undefined ? d.rotulo : ((padrao && padrao.rotulo) || ''),
+          // ordenação feita aqui e não com orderBy: documento sem o campo 'ordem'
+          // simplesmente sumiria de uma query ordenada do Firestore
+          ordem: typeof d.ordem === 'number' ? d.ordem : (iPadrao >= 0 ? iPadrao : 900)
+        };
+      }).sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR'));
+
+      CATEGORIAS.forEach(c => { if (!_cache[c.id]) _cache[c.id] = []; });
+    }
+
+    // Desenha as seções de produto da página a partir das categorias.
+    function montarSecoes() {
+      const wrap = document.getElementById('secoes-produtos');
+      if (!wrap) return;
+      wrap.innerHTML = '';
+
+      CATEGORIAS.forEach((c, i) => {
+        const sec = document.createElement('section');
+        sec.id = c.id;
+        sec.style.background = (i % 2 === 0) ? 'var(--bg)' : 'var(--surface)';
+        sec.style.borderTop = '1px solid var(--border)';
+        sec.innerHTML =
+          '<div class="launches-header fade-in"><div>' +
+            (c.rotulo ? '<div class="section-label">' + escaparHTML(c.rotulo) + '</div>' : '') +
+            '<h2 class="section-title">' + escaparHTML(c.nome) + '</h2>' +
+          '</div></div>' +
+          '<div class="dynamic-grid" id="grid-' + c.id + '">' +
+            '<div class="empty-state" id="empty-' + c.id + '">' +
+              '<div class="placeholder-slots">' +
+                new Array(4).fill(
+                  '<div class="slot-card" onclick="openAdminSection(\'' + c.id + '\')">' +
+                  '<div class="slot-plus">+</div><span>Adicionar</span></div>'
+                ).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        wrap.appendChild(sec);
+        sec.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+      });
+
+      montarNavCategorias();
+    }
+
+    function montarNavCategorias() {
+      const ancora = document.getElementById('nav-cat-anchor');
+      if (!ancora) return;
+      document.querySelectorAll('#nav-links li.nav-cat').forEach(li => li.remove());
+
+      CATEGORIAS.forEach(c => {
+        const li = document.createElement('li');
+        li.className = 'nav-cat';
+        const a = document.createElement('a');
+        a.href = '#' + c.id;
+        a.textContent = c.nome;
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          const alvo = document.getElementById(c.id);
+          if (!alvo) return;
+          const escondida = getComputedStyle(alvo).display === 'none';
+          if (escondida) limparFiltros();
+          setTimeout(() => alvo.scrollIntoView({ behavior: 'smooth' }), escondida ? 60 : 0);
+          const t = document.getElementById('nav-toggle');
+          const l = document.getElementById('nav-links');
+          if (t) t.classList.remove('open');
+          if (l) l.classList.remove('open');
+        });
+        li.appendChild(a);
+        ancora.parentNode.insertBefore(li, ancora);
+      });
+    }
+
+    // A faixa "Marcas que trabalhamos" também sai dos produtos cadastrados.
+    function montarFaixaMarcas() {
+      const grid = document.querySelector('.brands-grid');
+      if (!grid) return;
+      const marcas = marcasDisponiveis();
+      grid.innerHTML = '';
+      marcas.forEach(par => {
+        const d = document.createElement('div');
+        d.className = 'brand-item';
+        d.textContent = par[1];
+        grid.appendChild(d);
+      });
+      const secao = document.getElementById('marcas');
+      if (secao) secao.style.display = marcas.length ? '' : 'none';
+    }
+
+    function montarAbasAdmin() {
+      const wrap = document.querySelector('.admin-section-tabs');
+      if (!wrap) return;
+      if (!CATEGORIAS.some(c => c.id === currentSection)) {
+        currentSection = CATEGORIAS.length ? CATEGORIAS[0].id : null;
+      }
+      wrap.innerHTML = '';
+      CATEGORIAS.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'admin-tab' + (c.id === currentSection ? ' active' : '');
+        b.dataset.section = c.id;
+        b.textContent = c.nome;
+        b.onclick = () => selectSection(c.id, b);
+        wrap.appendChild(b);
+      });
+    }
+
+    function renderListaCategorias() {
+      const el = document.getElementById('lista-categorias');
+      if (!el) return;
+      el.innerHTML = '';
+      CATEGORIAS.forEach((c, i) => {
+        const qtd = getProducts(c.id).length;
+        const linha = document.createElement('div');
+        linha.className = 'cat-item';
+        linha.innerHTML =
+          '<div class="cat-info"><div class="cat-nome"></div>' +
+          '<div class="cat-qtd">' + qtd + (qtd === 1 ? ' produto' : ' produtos') + '</div></div>' +
+          '<div class="cat-acoes">' +
+            '<button title="Subir"' + (i === 0 ? ' disabled' : '') + '>\u2191</button>' +
+            '<button title="Descer"' + (i === CATEGORIAS.length - 1 ? ' disabled' : '') + '>\u2193</button>' +
+            '<button title="Renomear">\u270f</button>' +
+            '<button title="Remover" class="cat-del">\u2715</button>' +
+          '</div>';
+        linha.querySelector('.cat-nome').textContent = c.nome;
+        const bts = linha.querySelectorAll('button');
+        bts[0].onclick = () => moverCategoria(c.id, -1);
+        bts[1].onclick = () => moverCategoria(c.id, 1);
+        bts[2].onclick = () => renomearCategoria(c.id);
+        bts[3].onclick = () => removerCategoria(c.id);
+        el.appendChild(linha);
+      });
+    }
+
+    async function criarCategoria() {
+      const nome   = document.getElementById('nova-cat-nome').value.trim();
+      const rotulo = document.getElementById('nova-cat-rotulo').value.trim();
+      if (!nome) { alert('Digite o nome da categoria.'); return; }
+
+      const id = gerarIdCategoria(nome);
+      if (!id) { alert('Esse nome não gera um endereço válido. Use letras ou números.'); return; }
+      if (CATEGORIAS.some(c => c.id === id)) { alert('Já existe uma categoria com esse nome.'); return; }
+
+      const ordem = CATEGORIAS.length ? Math.max.apply(null, CATEGORIAS.map(c => c.ordem)) + 1 : 0;
+      try {
+        // migrated/mediaSplit já nascem true: categoria nova nunca teve formato antigo
+        await db.collection('sections').doc(id).set({
+          nome: nome, rotulo: rotulo, ordem: ordem, migrated: true, mediaSplit: true
+        }, { merge: true });
+      } catch (err) {
+        alert('Não consegui criar a categoria: ' + err.message);
+        return;
+      }
+
+      document.getElementById('nova-cat-nome').value = '';
+      document.getElementById('nova-cat-rotulo').value = '';
+      await recarregarCategorias();
+    }
+
+    async function renomearCategoria(id) {
+      const c = CATEGORIAS.find(x => x.id === id);
+      if (!c) return;
+      const nome = prompt('Nome da categoria:', c.nome);
+      if (nome === null) return;
+      if (!nome.trim()) { alert('O nome não pode ficar vazio.'); return; }
+      const rotulo = prompt('Rótulo pequeno acima do título (pode deixar vazio):', c.rotulo || '');
+      if (rotulo === null) return;
+      try {
+        await db.collection('sections').doc(id)
+          .set({ nome: nome.trim(), rotulo: rotulo.trim() }, { merge: true });
+      } catch (err) {
+        alert('Não consegui renomear: ' + err.message);
+        return;
+      }
+      await recarregarCategorias();
+    }
+
+    async function moverCategoria(id, dir) {
+      const i = CATEGORIAS.findIndex(c => c.id === id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= CATEGORIAS.length) return;
+
+      const nova = CATEGORIAS.slice();
+      const tmp = nova[i]; nova[i] = nova[j]; nova[j] = tmp;
+
+      try {
+        const batch = db.batch();
+        nova.forEach((c, idx) => {
+          batch.set(db.collection('sections').doc(c.id), { ordem: idx }, { merge: true });
+        });
+        await batch.commit();
+      } catch (err) {
+        alert('Não consegui reordenar: ' + err.message);
+        return;
+      }
+      await recarregarCategorias();
+    }
+
+    async function removerCategoria(id) {
+      const c = CATEGORIAS.find(x => x.id === id);
+      if (!c) return;
+      if (CATEGORIAS.length <= 1) { alert('Precisa sobrar pelo menos uma categoria.'); return; }
+
+      // confere no banco, não só no cache, antes de deixar apagar
+      let temProduto = getProducts(id).length > 0;
+      try {
+        const snap = await productsRef(id).limit(1).get();
+        temProduto = !snap.empty;
+      } catch (err) {
+        console.warn('Não consegui conferir os produtos de ' + id + ':', err);
+      }
+
+      if (temProduto) {
+        alert('"' + c.nome + '" ainda tem produto dentro.\n\n' +
+              'Use o "Mover para" na lista de produtos, ou remova os produtos antes de apagar a categoria.');
+        return;
+      }
+
+      if (!confirm('Apagar a categoria "' + c.nome + '"?')) return;
+      try {
+        await db.collection('sections').doc(id).delete();
+      } catch (err) {
+        alert('Não consegui apagar: ' + err.message);
+        return;
+      }
+      await recarregarCategorias();
+    }
+
+    // Move um produto (com as fotos extras) de uma categoria para outra.
+    async function moverProduto(deSecao, id, paraSecao) {
+      if (!paraSecao || paraSecao === deSecao) return;
+      const p = getProducts(deSecao).find(x => x.id === id);
+      if (!p) return;
+
+      try {
+        let extra = null;
+        const snapMedia = await mediaRef(deSecao, id).get();
+        if (snapMedia.exists) extra = snapMedia.data();
+
+        const batch = db.batch();
+        batch.set(productsRef(paraSecao).doc(String(id)), p);
+        if (extra) batch.set(mediaRef(paraSecao, id), extra);
+        batch.delete(productsRef(deSecao).doc(String(id)));
+        if (extra) batch.delete(mediaRef(deSecao, id));
+        await batch.commit();
+      } catch (err) {
+        alert('Não consegui mover o produto: ' + err.message);
+        return;
+      }
+
+      _cache[deSecao] = getProducts(deSecao).filter(x => x.id !== id);
+      renderAdminList();
+      renderListaCategorias();
+      atualizarSecao(deSecao);
+      atualizarFiltrosUI();
+    }
+
+    async function recarregarCategorias() {
+      await carregarCategorias();
+      montarSecoes();
+      montarAbasAdmin();
+      renderListaCategorias();
+      await conectarSections();
+      aplicarFiltros();
+    }
 
     // Cada produto é um documento em sections/{secao}/products/{id}.
     // Assim o teto de 1 MB do Firestore passa a valer por produto, e não pela seção inteira.
@@ -2836,9 +3151,8 @@
       openAdmin();
       // após abrir, pré-seleciona a aba (aguarda render)
       setTimeout(() => {
-        const tabs = document.querySelectorAll('.admin-tab');
-        const map = { lancamentos: 0, 'corrida-performance': 1, 'corrida-iniciante': 2, 'cross-academia': 3, outlet: 4 };
-        if (tabs[map[section]]) tabs[map[section]].click();
+        const tab = document.querySelector('.admin-tab[data-section="' + section + '"]');
+        if (tab) tab.click();
       }, 50);
     }
 
@@ -3136,7 +3450,13 @@
             <div class="admin-product-item-brand">${p.brand || '—'}</div>
             <div class="admin-product-item-name">${p.name}</div>
           </div>
-          <div style="display:flex;gap:0.5rem;flex-shrink:0;">
+          <div style="display:flex;gap:0.5rem;flex-shrink:0;align-items:center;">
+            <select class="admin-mover" title="Mover para outra categoria"
+                    onchange="moverProduto('${currentSection}', ${p.id}, this.value); this.value='';">
+              <option value="">Mover para…</option>
+              ${CATEGORIAS.filter(c => c.id !== currentSection)
+                          .map(c => `<option value="${c.id}">${escaparHTML(c.nome)}</option>`).join('')}
+            </select>
             <button class="admin-edit-btn" onclick="openEditModal('${currentSection}', ${p.id})">✏ Editar</button>
             <button class="admin-delete-btn" onclick="deleteProduct('${currentSection}', ${p.id})">✕ Remover</button>
           </div>
@@ -3338,14 +3658,6 @@
     // ─── FILTROS (categoria / marca / numeração) ───
     const _filtros = { categoria: 'todas', marca: 'todas', numero: 'todas' };
 
-    const rotuloSecao = {
-      lancamentos: 'Lançamentos',
-      'corrida-performance': 'Corrida Performance',
-      'corrida-iniciante': 'Corrida Iniciante',
-      'cross-academia': 'Cross / Academia',
-      outlet: 'Outlet'
-    };
-
     function filtroAtivo() {
       return _filtros.categoria !== 'todas'
           || _filtros.marca !== 'todas'
@@ -3374,7 +3686,7 @@
     // As opções saem dos produtos cadastrados: marca nova vira botão sozinha.
     function marcasDisponiveis() {
       const mapa = new Map();
-      SECTIONS.forEach(s => getProducts(s).forEach(p => {
+      idsCategorias().forEach(s => getProducts(s).forEach(p => {
         const norm = normalizarMarca(p.brand);
         if (norm && !mapa.has(norm)) mapa.set(norm, p.brand.trim());
       }));
@@ -3383,7 +3695,7 @@
 
     function numerosDisponiveis() {
       const set = new Set();
-      SECTIONS.forEach(s => getProducts(s).forEach(p => {
+      idsCategorias().forEach(s => getProducts(s).forEach(p => {
         (p.sizes || []).forEach(n => { if (n || n === 0) set.add(Number(n)); });
       }));
       return [...set].sort((a, b) => a - b);
@@ -3418,8 +3730,8 @@
 
       cats.innerHTML = '';
       cats.appendChild(criarChip('Todas', _filtros.categoria === 'todas', () => setFiltro('categoria', 'todas')));
-      SECTIONS.forEach(s => {
-        cats.appendChild(criarChip(rotuloSecao[s] || s, _filtros.categoria === s, () => setFiltro('categoria', s)));
+      CATEGORIAS.forEach(c => {
+        cats.appendChild(criarChip(c.nome, _filtros.categoria === c.id, () => setFiltro('categoria', c.id)));
       });
 
       const marcas = marcasDisponiveis();
@@ -3440,12 +3752,16 @@
       document.getElementById('linha-marca').style.display  = marcas.length  ? '' : 'none';
       document.getElementById('linha-numero').style.display = numeros.length ? '' : 'none';
 
-      const total = SECTIONS.reduce((soma, s) => soma + produtosVisiveis(s).length, 0);
+      const total = idsCategorias().reduce((soma, s) => soma + produtosVisiveis(s).length, 0);
       document.getElementById('filtro-contador').innerHTML =
         '<strong>' + total + '</strong> ' + (total === 1 ? 'produto' : 'produtos');
       document.getElementById('filtro-limpar').style.display = filtroAtivo() ? '' : 'none';
       document.getElementById('filtro-vazio').style.display =
         (filtroAtivo() && total === 0) ? 'block' : 'none';
+
+      // aqui e nao no aplicarFiltros: assim a faixa tambem se monta quando os
+      // produtos chegam do Firebase, nao so quando alguem clica num filtro
+      montarFaixaMarcas();
     }
 
     // Redesenha uma seção e esconde a seção inteira se o filtro não deixou nada nela.
@@ -3458,7 +3774,7 @@
     }
 
     function aplicarFiltros() {
-      SECTIONS.forEach(atualizarSecao);
+      idsCategorias().forEach(atualizarSecao);
       atualizarFiltrosUI();
     }
 
@@ -3524,13 +3840,23 @@
         _cache[section] = snap.docs.map(d => d.data());
         atualizarSecao(section);
         atualizarFiltrosUI();
+        renderListaCategorias();
         atualizarAdminSePreciso();
       }, err => console.error('Erro ao carregar ' + section + ':', err));
     }
 
     // Decide o formato lendo a flag no documento da seção (documento pequeno, leitura pública).
     async function conectarSections() {
-      for (const section of SECTIONS) {
+      // solta listeners de categoria que deixou de existir
+      Object.keys(_unsub).forEach(s => {
+        if (!idsCategorias().includes(s)) {
+          if (_unsub[s]) _unsub[s]();
+          delete _unsub[s];
+          delete _cache[s];
+        }
+      });
+
+      for (const section of idsCategorias()) {
         let migrado = false;
         try {
           const snap = await db.collection('sections').doc(section).get();
@@ -3551,7 +3877,7 @@
       if (!user) return;
 
       // A migração escreve no banco, então só roda com alguém logado.
-      for (const section of SECTIONS) {
+      for (const section of idsCategorias()) {
         try {
           await migrateLegacySection(section);
           await splitProductMedia(section);
@@ -3562,8 +3888,14 @@
       await conectarSections(); // reconecta já no formato novo
     });
 
-    atualizarFiltrosUI();
-    conectarSections();
+    (async () => {
+      await carregarCategorias();
+      montarSecoes();
+      montarAbasAdmin();
+      renderListaCategorias();
+      atualizarFiltrosUI();
+      await conectarSections();
+    })();
 
     // ─── KEYBOARD SHORTCUT: Ctrl+Shift+A para abrir admin ───
     document.addEventListener('keydown', (e) => {

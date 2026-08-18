@@ -26,10 +26,19 @@ service cloud.firestore {
     // nao verifica se o endereco existe: qualquer um poderia criar uma conta com
     // aquele e-mail e ganhar permissao de escrita. So e-mail real, de conta que ja
     // foi criada no console.
+    // Para somar mais gente, e so acrescentar linhas separadas por virgula:
+    //
+    //     && request.auth.token.email in [
+    //          'delazaricaique2@gmail.com',
+    //          'segundo@exemplo.com',
+    //          'terceiro@exemplo.com'
+    //        ];
+    //
+    // (os dois de exemplo estao comentados de proposito - ver o aviso acima)
     function ehAdmin() {
       return request.auth != null
           && request.auth.token.email in [
-               'delazaricaique2@gmail.com'
+               'caiqueusc@hotmail.com'
              ];
     }
 

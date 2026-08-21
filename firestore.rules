@@ -48,8 +48,9 @@ service cloud.firestore {
       allow write: if ehAdmin();
     }
 
-    // Ajustes do site editados no painel (hoje: a faixa "Marcas que trabalhamos").
-    // Leitura publica porque aparece na pagina; escrita so do admin.
+    // Ajustes do site editados no painel. Hoje nao ha nenhum: a faixa
+    // "Marcas que trabalhamos" saiu do site e era a unica coisa guardada aqui.
+    // A regra fica de pe para o proximo ajuste que precisar de leitura publica.
     match /config/{doc} {
       allow read:  if true;
       allow write: if ehAdmin();

@@ -34,6 +34,9 @@
       --border: #222222;
       --text: #f0f0f0;
       --text-muted: #888888;
+      /* altura da nav fixa — usada para empurrar o conteúdo, já que o site
+         não tem mais o hero de tela cheia embaixo dela */
+      --nav-h: 92px;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,6 +48,7 @@
       color: var(--text);
       font-family: 'Barlow', sans-serif;
       overflow-x: hidden;
+      padding-top: var(--nav-h);
     }
 
     /* ─── SCROLLBAR ─── */
@@ -67,9 +71,10 @@
       transition: all 0.3s;
     }
 
+    /* opaca ao rolar: a faixa lima passa por baixo e vazava pelos 3% de transparência */
     nav.scrolled {
       padding: 0.8rem 4rem;
-      background: rgba(8,8,8,0.97);
+      background: #080808;
     }
 
     .nav-logo {
@@ -80,7 +85,7 @@
     }
 
     .nav-logo-img {
-      height: 90px;
+      height: 52px;
       width: auto;
       display: block;
     }
@@ -335,47 +340,6 @@
       0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
       50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
       100% { transform: scaleY(1); transform-origin: bottom; opacity: 0; }
-    }
-
-    /* ─── MARQUEE ─── */
-    .marquee-section {
-      background: var(--accent);
-      padding: 1rem 0;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .marquee-track {
-      display: flex;
-      gap: 0;
-      animation: marquee 20s linear infinite;
-      width: max-content;
-    }
-
-    .marquee-item {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      padding: 0 2rem;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
-      color: #080808;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .marquee-dot {
-      width: 6px; height: 6px;
-      background: #080808;
-      border-radius: 50%;
-      opacity: 0.4;
-    }
-
-    @keyframes marquee {
-      from { transform: translateX(0); }
-      to { transform: translateX(-50%); }
     }
 
     /* ─── SECTION BASE ─── */
@@ -779,44 +743,6 @@
       padding: 0.2rem 0.6rem;
       border-radius: 4px;
     }
-
-    /* ─── BRANDS ─── */
-    #marcas {
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
-      padding: 4rem;
-    }
-
-    .brands-label {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.75rem;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 2.5rem;
-    }
-
-    .brands-grid {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4rem;
-      flex-wrap: wrap;
-    }
-
-    .brand-item {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 1.4rem;
-      color: var(--text-muted);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      transition: color 0.2s;
-      cursor: default;
-    }
-
-    .brand-item:hover { color: var(--text); }
 
     /* ─── HOURS ─── */
     #horarios { background: var(--bg); }
@@ -1538,6 +1464,78 @@
       border-radius: 4px;
     }
 
+    /* ─── CORES ─── */
+    /* A bolinha aparece em três lugares: grade do painel, card do produto e
+       chip do filtro. O `background` vem do JS porque "Colorido" é um degradê. */
+    .color-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.35);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.25);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .color-grid, .edit-color-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.4rem;
+    }
+
+    .color-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      background: var(--surface2);
+      color: var(--text-muted);
+      font-family: 'Barlow', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .color-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    .color-btn.selected {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #080808;
+    }
+
+    .color-btn.selected .color-dot { border-color: rgba(0,0,0,0.45); }
+
+    .cores-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+
+    .cor-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.66rem;
+      font-weight: 600;
+      padding: 2px 8px 2px 4px;
+      border-radius: 100px;
+    }
+
+    /* no card o fundo é escuro: o contorno precisa ser mais claro para
+       a bolinha preta não sumir */
+    .cor-pill .color-dot {
+      width: 11px; height: 11px;
+      border-color: rgba(255,255,255,0.55);
+    }
+
     .admin-password-screen {
       display: flex;
       flex-direction: column;
@@ -1980,11 +1978,45 @@
       gap: 0.55rem;
     }
 
+    /* A faixa de filtros é a única parte clara do site — pedido do cliente.
+       Por isso todo o conteúdo dela é recolorido logo abaixo. */
     #filtros-bar {
-      background: rgba(10,10,10,0.97);
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid rgba(200,240,0,0.15);
+      background: #ffffff;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      border-bottom: 2px solid var(--accent);
     }
+
+    #filtros-bar .filtros-titulo,
+    #filtros-bar .filtro-label,
+    #filtros-bar #filtro-contador,
+    #filtros-bar #filtro-limpar { color: #6a6a6a; }
+
+    #filtros-bar #filtro-resumo { color: #1a1a1a; font-weight: 600; }
+    #filtros-bar #filtro-contador strong { color: #111111; }
+    #filtros-bar #filtro-limpar:hover { color: #111111; }
+
+    #filtros-bar #filtro-toggle {
+      border-color: rgba(0,0,0,0.18);
+      color: #555555;
+    }
+    #filtros-bar #filtro-toggle:hover { border-color: #111111; color: #111111; }
+
+    #filtros-bar .filtro-chip {
+      border-color: rgba(0,0,0,0.16);
+      color: #444444;
+    }
+    #filtros-bar .filtro-chip:hover { border-color: #111111; color: #111111; }
+    #filtros-bar .filtro-chip.ativo {
+      background: var(--accent);
+      border-color: var(--accent-dim);
+      color: #080808;
+    }
+
+    /* chip com bolinha de cor — o contorno tem que ser escuro, senão a bolinha
+       branca some no fundo branco da barra */
+    .filtro-chip.com-cor { display: inline-flex; align-items: center; gap: 5px; }
+    .filtro-chip .color-dot { width: 11px; height: 11px; }
+    #filtros-bar .color-dot { border-color: rgba(0,0,0,0.3); }
 
     /* position:sticky não funciona aqui porque o body usa overflow-x:hidden,
        então a fixação é feita por JS trocando esta classe. */
@@ -1992,8 +2024,7 @@
       position: fixed;
       left: 0; right: 0;
       z-index: 90;
-      backdrop-filter: blur(18px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
 
     .filtros-inner {
@@ -2106,8 +2137,10 @@
 
     /* ─── MOBILE ─── */
     @media (max-width: 900px) {
+      :root { --nav-h: 78px; }
       nav { padding: 1rem 1.5rem; }
       nav.scrolled { padding: 0.7rem 1.5rem; }
+      .nav-logo-img { height: 44px; }
       .nav-toggle { display: flex; }
       .nav-links {
         display: flex;
@@ -2155,7 +2188,6 @@
       .insta-grid { grid-template-columns: repeat(3, 1fr); }
       .footer-top { grid-template-columns: 1fr; gap: 2rem; }
       .footer-bottom { flex-direction: column; gap: 1rem; text-align: center; }
-      .brands-grid { gap: 2rem; }
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -2167,98 +2199,16 @@
   <!-- NAV -->
   <nav id="navbar">
     <a href="#" class="nav-logo">
-      <img src="logo.png.jpeg" alt="Zenith Sports" class="nav-logo-img" />
+      <img src="logo-z.png" alt="Zenith Sports" class="nav-logo-img" />
     </a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="nav-links">
-      <li><a href="#sobre">Sobre</a></li>
       <li id="nav-cat-anchor" style="display:none"></li>
-      <li><a href="#marcas">Marcas</a></li>
-      <li><a href="#horarios">Horários</a></li>
       <li><a href="https://www.instagram.com/zenithsportsoficial/" target="_blank" class="nav-cta">Seguir</a></li>
     </ul>
   </nav>
-
-  <!-- HERO -->
-  <section id="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-content">
-      <div class="hero-badge">Agudos · SP — Tênis Originais</div>
-      <h1 class="hero-title">
-        <span class="outline">Levando seu</span>
-        <span class="accent">Esporte</span>
-        <span>a sério</span>
-      </h1>
-      <p class="hero-sub">
-        Tênis esportivos 100% originais das maiores marcas do mundo.
-        Atendimento personalizado e envio para todo o Brasil.
-      </p>
-      <div class="hero-actions">
-        <a href="#secoes-produtos" class="btn-primary">Ver Produtos →</a>
-      </div>
-    </div>
-
-    <!-- HERO 3D SHOE -->
-    <div class="hero-visual">
-      <div class="shoe-rings">
-        <div class="shoe-ring r1"></div>
-        <div class="shoe-ring r2"></div>
-        <div class="shoe-ring r3"></div>
-      </div>
-      <div class="shoe-scene" id="shoe-scene">
-        <div class="shoe-float" id="shoe-float">
-          <div class="shoe-tilt" id="shoe-tilt">
-            <div class="hero-shoe-img-wrap">
-              <img src="bandeira.png" alt="Zenith Sports" class="hero-shoe-img" draggable="false" />
-            </div>
-          </div>
-        </div>
-        <div class="shoe-ground-glow"></div>
-      </div>
-      <div class="shoe-hint">Clique para interagir</div>
-    </div>
-
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">1K+</div>
-        <div class="stat-label">Seguidores</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">100%</div>
-        <div class="stat-label">Originais</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">BR</div>
-        <div class="stat-label">Todo Brasil</div>
-      </div>
-    </div>
-    <div class="hero-scroll">
-      <div class="scroll-line"></div>
-      Scroll
-    </div>
-  </section>
-
-  <!-- MARQUEE -->
-  <div class="marquee-section">
-    <div class="marquee-track">
-      <!-- duplicated for infinite loop -->
-      <div class="marquee-item">Tênis Originais <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Envio para todo Brasil <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Lançamentos Exclusivos <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Levando seu Esporte a Sério <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Agudos · SP <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Zenith Sports <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Tênis Originais <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Envio para todo Brasil <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Lançamentos Exclusivos <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Levando seu Esporte a Sério <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Agudos · SP <span class="marquee-dot"></span></div>
-      <div class="marquee-item">Zenith Sports <span class="marquee-dot"></span></div>
-    </div>
-  </div>
 
   <!-- FILTROS -->
   <div id="filtros-spacer" style="height:0"></div>
@@ -2277,6 +2227,10 @@
         <div class="filtro-linha" id="linha-marca">
           <span class="filtro-label">Marca</span>
           <div class="filtro-chips" id="chips-marca"></div>
+        </div>
+        <div class="filtro-linha" id="linha-cor">
+          <span class="filtro-label">Cor</span>
+          <div class="filtro-chips" id="chips-cor"></div>
         </div>
         <div class="filtro-linha" id="linha-numero">
           <span class="filtro-label">Numeração</span>
@@ -2297,12 +2251,6 @@
 
   <!-- SEÇÕES DE PRODUTO (geradas por JS a partir das categorias do banco) -->
   <div id="secoes-produtos"></div>
-
-  <!-- MARCAS -->
-  <section id="marcas">
-    <p class="brands-label">Marcas que trabalhamos</p>
-    <div class="brands-grid"></div>
-  </section>
 
   <!-- HORÁRIOS -->
   <section id="horarios">
@@ -2434,7 +2382,6 @@
         <ul>
           <li><a href="#sobre">Sobre nós</a></li>
           <li><a href="#secoes-produtos">Produtos</a></li>
-          <li><a href="#marcas">Marcas</a></li>
           <li><a href="#horarios">Horários</a></li>
           <li><a href="#instagram">Instagram</a></li>
         </ul>
@@ -2487,6 +2434,10 @@
       <div class="admin-field">
         <label>Numerações disponíveis</label>
         <div class="edit-size-grid" id="edit-size-grid"></div>
+      </div>
+      <div class="admin-field">
+        <label>Cores (o visitante filtra por elas)</label>
+        <div class="edit-color-grid" id="edit-color-grid"></div>
       </div>
       <div class="admin-field">
         <label>Tag</label>
@@ -2556,24 +2507,6 @@
           </div>
         </details>
 
-        <!-- MARCAS DA LOJA -->
-        <details class="admin-cats">
-          <summary>Marcas que trabalhamos</summary>
-          <p style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.6rem;">
-            Esta é a faixa exibida no site. Deixando a lista vazia, ela volta a mostrar
-            sozinha as marcas dos produtos cadastrados.
-          </p>
-          <div id="lista-marcas"></div>
-          <div class="admin-cat-nova">
-            <input type="text" id="nova-marca" placeholder="Nome da marca (ex: Asics)"
-                   onkeydown="if(event.key==='Enter') adicionarMarca()" />
-            <button onclick="adicionarMarca()">+ Adicionar</button>
-            <button onclick="puxarMarcasDosProdutos()" style="background:transparent;border:1px solid var(--border);color:var(--text-muted);">
-              Puxar dos produtos
-            </button>
-          </div>
-        </details>
-
         <!-- ABAS DE SEÇÃO -->
         <div class="admin-section-tabs"></div>
 
@@ -2602,6 +2535,12 @@
           <div class="admin-field">
             <label>Numerações disponíveis</label>
             <div class="size-grid" id="size-grid">
+              <!-- gerado pelo JS -->
+            </div>
+          </div>
+          <div class="admin-field">
+            <label>Cores (o visitante filtra por elas)</label>
+            <div class="color-grid" id="color-grid">
               <!-- gerado pelo JS -->
             </div>
           </div>
@@ -2705,6 +2644,80 @@
     const MAX_PHOTOS = 6;
     let uploadedImages = new Array(MAX_PHOTOS).fill(null);
     let selectedSizes = [];
+    let selectedColors = [];
+
+    // ─── CORES ───
+    // Lista fixa de propósito: se cada produto fosse cadastrado com a cor digitada
+    // à mão, "Azul marinho" e "azul-marinho" viravam dois filtros diferentes.
+    // Para somar uma cor nova, é só acrescentar uma linha aqui.
+    const CORES = [
+      ['Preto',        '#111111'],
+      ['Branco',       '#ffffff'],
+      ['Cinza',        '#9a9a9a'],
+      ['Prata',        '#c9ced6'],
+      ['Bege',         '#d9c4a3'],
+      ['Marrom',       '#6b4423'],
+      ['Vermelho',     '#d32020'],
+      ['Vinho',        '#7b1e2b'],
+      ['Rosa',         '#ff5fa2'],
+      ['Laranja',      '#ff7a1a'],
+      ['Amarelo',      '#ffd400'],
+      ['Verde',        '#1faa4b'],
+      ['Verde Limão',  '#c8f000'],
+      ['Azul',         '#1f6fd6'],
+      ['Azul Marinho', '#16255c'],
+      ['Roxo',         '#7b3fb5'],
+      ['Dourado',      '#d4a017'],
+      ['Colorido',     'linear-gradient(135deg,#ff3b3b,#ffd400,#1faa4b,#1f6fd6,#7b3fb5)'],
+    ];
+
+    function normalizarCor(c) {
+      return (c || '').trim().toLowerCase();
+    }
+
+    // fundo da bolinha; cor fora da lista (dado antigo) cai num cinza neutro
+    function fundoDaCor(nome) {
+      const achou = CORES.find(([n]) => normalizarCor(n) === normalizarCor(nome));
+      return achou ? achou[1] : '#666666';
+    }
+
+    // Guarda sempre na ordem da paleta, não na ordem em que o admin clicou —
+    // assim dois produtos com as mesmas cores aparecem iguais no card.
+    function ordenarCores(lista) {
+      const pos = n => CORES.findIndex(([c]) => normalizarCor(c) === normalizarCor(n));
+      return [...lista].sort((a, b) => pos(a) - pos(b));
+    }
+
+    function bolinhaDeCor(nome) {
+      const s = document.createElement('span');
+      s.className = 'color-dot';
+      s.style.background = fundoDaCor(nome);
+      return s;
+    }
+
+    // Monta uma grade de cores marcáveis. Usada no formulário de novo produto e
+    // no modal de edição, cada um com sua própria lista de selecionadas.
+    function montarGradeCores(el, pegarLista, trocarLista) {
+      if (!el) return;
+      el.innerHTML = '';
+      CORES.forEach(([nome]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const marcada = pegarLista().some(c => normalizarCor(c) === normalizarCor(nome));
+        btn.className = 'color-btn' + (marcada ? ' selected' : '');
+        btn.appendChild(bolinhaDeCor(nome));
+        btn.appendChild(document.createTextNode(nome));
+        btn.onclick = function () {
+          const lista = pegarLista();
+          const tem = lista.some(c => normalizarCor(c) === normalizarCor(nome));
+          trocarLista(tem
+            ? lista.filter(c => normalizarCor(c) !== normalizarCor(nome))
+            : lista.concat([nome]));
+          this.classList.toggle('selected', !tem);
+        };
+        el.appendChild(btn);
+      });
+    }
 
     // gera os slots de foto do painel admin
     (function buildPhotoSlots() {
@@ -2748,6 +2761,13 @@
         grid.appendChild(btn);
       }
     })();
+
+    // gera os botões de cor do formulário
+    montarGradeCores(
+      document.getElementById('color-grid'),
+      () => selectedColors,
+      lista => { selectedColors = lista; }
+    );
 
     // ─── FIREBASE INIT ───
     firebase.initializeApp({
@@ -2883,125 +2903,6 @@
         li.appendChild(a);
         ancora.parentNode.insertBefore(li, ancora);
       });
-    }
-
-    // ─── MARCAS DA LOJA (faixa "Marcas que trabalhamos") ───
-    // Lista editada no painel, guardada em config/marcas. Fica separada das marcas
-    // dos produtos de propósito: a loja pode trabalhar com uma marca que no momento
-    // não tem nenhum par em estoque.
-    let MARCAS_LOJA = [];
-
-    async function carregarMarcasLoja() {
-      try {
-        const snap = await db.collection('config').doc('marcas').get();
-        const lista = snap.exists ? snap.data().lista : null;
-        MARCAS_LOJA = Array.isArray(lista) ? lista.filter(m => String(m || '').trim()) : [];
-      } catch (err) {
-        console.error('Não consegui ler as marcas da loja:', err);
-        MARCAS_LOJA = [];
-      }
-    }
-
-    // lista vazia = volta a puxar sozinha das marcas dos produtos
-    function marcasDaFaixa() {
-      if (MARCAS_LOJA.length) return MARCAS_LOJA.slice();
-      return marcasDisponiveis().map(par => par[1]);
-    }
-
-    function montarFaixaMarcas() {
-      const grid = document.querySelector('.brands-grid');
-      if (!grid) return;
-      const marcas = marcasDaFaixa();
-      grid.innerHTML = '';
-      marcas.forEach(nome => {
-        const d = document.createElement('div');
-        d.className = 'brand-item';
-        d.textContent = nome;
-        grid.appendChild(d);
-      });
-      const secao = document.getElementById('marcas');
-      if (secao) secao.style.display = marcas.length ? '' : 'none';
-    }
-
-    async function salvarMarcasLoja(lista) {
-      try {
-        await db.collection('config').doc('marcas').set({ lista: lista }, { merge: true });
-      } catch (err) {
-        alert('Não consegui salvar as marcas: ' + err.message);
-        return false;
-      }
-      MARCAS_LOJA = lista;
-      renderListaMarcas();
-      montarFaixaMarcas();
-      return true;
-    }
-
-    function renderListaMarcas() {
-      const el = document.getElementById('lista-marcas');
-      if (!el) return;
-      el.innerHTML = '';
-
-      if (!MARCAS_LOJA.length) {
-        el.innerHTML = '<p style="color:var(--text-muted);font-size:0.8rem;">' +
-          'Nenhuma marca na lista — a faixa está mostrando as marcas dos produtos.</p>';
-        return;
-      }
-
-      MARCAS_LOJA.forEach((nome, i) => {
-        const linha = document.createElement('div');
-        linha.className = 'cat-item';
-        linha.innerHTML =
-          '<div class="cat-info"><div class="cat-nome"></div></div>' +
-          '<div class="cat-acoes">' +
-            '<button title="Subir"' + (i === 0 ? ' disabled' : '') + '>\u2191</button>' +
-            '<button title="Descer"' + (i === MARCAS_LOJA.length - 1 ? ' disabled' : '') + '>\u2193</button>' +
-            '<button title="Remover" class="cat-del">\u2715</button>' +
-          '</div>';
-        linha.querySelector('.cat-nome').textContent = nome;
-        const bts = linha.querySelectorAll('button');
-        bts[0].onclick = () => moverMarca(i, -1);
-        bts[1].onclick = () => moverMarca(i, 1);
-        bts[2].onclick = () => removerMarca(nome);
-        el.appendChild(linha);
-      });
-    }
-
-    async function adicionarMarca() {
-      const input = document.getElementById('nova-marca');
-      const nome = input.value.trim();
-      if (!nome) { alert('Digite o nome da marca.'); return; }
-      if (MARCAS_LOJA.some(m => m.toLowerCase() === nome.toLowerCase())) {
-        alert('"' + nome + '" já está na lista.');
-        return;
-      }
-      if (await salvarMarcasLoja(MARCAS_LOJA.concat([nome]))) input.value = '';
-    }
-
-    async function removerMarca(nome) {
-      if (!confirm('Tirar "' + nome + '" da faixa de marcas?')) return;
-      await salvarMarcasLoja(MARCAS_LOJA.filter(m => m !== nome));
-    }
-
-    async function moverMarca(i, dir) {
-      const j = i + dir;
-      if (j < 0 || j >= MARCAS_LOJA.length) return;
-      const nova = MARCAS_LOJA.slice();
-      const tmp = nova[i]; nova[i] = nova[j]; nova[j] = tmp;
-      await salvarMarcasLoja(nova);
-    }
-
-    // Atalho: joga na lista as marcas que aparecem nos produtos cadastrados.
-    async function puxarMarcasDosProdutos() {
-      const dosProdutos = marcasDisponiveis().map(par => par[1]);
-      if (!dosProdutos.length) { alert('Nenhum produto tem marca preenchida.'); return; }
-
-      const juntas = MARCAS_LOJA.slice();
-      dosProdutos.forEach(m => {
-        if (!juntas.some(x => x.toLowerCase() === m.toLowerCase())) juntas.push(m);
-      });
-
-      if (juntas.length === MARCAS_LOJA.length) { alert('A lista já tem todas as marcas dos produtos.'); return; }
-      await salvarMarcasLoja(juntas);
     }
 
     function montarAbasAdmin() {
@@ -3359,7 +3260,6 @@
         if (quem) quem.textContent = user.email || '';
         renderAdminList();
         renderListaCategorias();
-        renderListaMarcas();
       }
     }
 
@@ -3504,7 +3404,8 @@
       const product = {
         id: Date.now(),
         brand, name, desc, price, tag,
-        sizes: [...selectedSizes].sort((a,b) => a-b)
+        sizes: [...selectedSizes].sort((a,b) => a-b),
+        cores: ordenarCores(selectedColors)
       };
 
       let salvo;
@@ -3513,7 +3414,13 @@
       } catch (err) {
         return; // mantém o formulário preenchido para o usuário corrigir
       }
-      _cache[currentSection] = getProducts(currentSection).concat([salvo]);
+      // O onSnapshot do Firestore dispara já na gravação (latency compensation),
+      // então o produto costuma entrar no cache antes deste ponto. Sem conferir o
+      // id, ele era somado de novo e o card aparecia em dobro até recarregar.
+      const jaNoCache = getProducts(currentSection);
+      if (!jaNoCache.some(x => x.id === salvo.id)) {
+        _cache[currentSection] = jaNoCache.concat([salvo]);
+      }
       // as fotos já estão no navegador: evita rebaixá-las do Firebase
       window._prodImgs = window._prodImgs || {};
       window._prodImgs[salvo.id] = imgs;
@@ -3526,6 +3433,8 @@
       document.getElementById('product-tag').value = 'new';
       selectedSizes = [];
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+      selectedColors = [];
+      document.querySelectorAll('#color-grid .color-btn').forEach(b => b.classList.remove('selected'));
       uploadedImages = new Array(MAX_PHOTOS).fill(null);
       for (let i = 0; i < MAX_PHOTOS; i++) {
         const prev = document.getElementById('pprev-' + i);
@@ -3552,6 +3461,7 @@
     let _editSection = null;
     let _editId = null;
     let _editSizes = [];
+    let _editColors = [];
 
     function openEditModal(section, id) {
       const product = getProducts(section).find(p => p.id === id);
@@ -3559,6 +3469,13 @@
       _editSection = section;
       _editId = id;
       _editSizes = [...(product.sizes || [])];
+      _editColors = [...(product.cores || [])];
+
+      montarGradeCores(
+        document.getElementById('edit-color-grid'),
+        () => _editColors,
+        lista => { _editColors = lista; }
+      );
 
       document.getElementById('edit-brand').value = product.brand || '';
       document.getElementById('edit-name').value  = product.name  || '';
@@ -3590,7 +3507,7 @@
 
     function closeEditModal() {
       document.getElementById('edit-modal').classList.remove('open');
-      _editSection = null; _editId = null; _editSizes = [];
+      _editSection = null; _editId = null; _editSizes = []; _editColors = [];
     }
 
     function saveEdit() {
@@ -3604,6 +3521,7 @@
         price: document.getElementById('edit-price').value.trim(),
         tag:   document.getElementById('edit-tag').value,
         sizes: [..._editSizes].sort((a, b) => a - b),
+        cores: ordenarCores(_editColors),
       };
       saveProduct(_editSection, updated);
       _cache[_editSection] = getProducts(_editSection).map(p => p.id === _editId ? updated : p);
@@ -3712,6 +3630,13 @@
               <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Numeração Disponível</span>
               <div class="sizes-display" style="margin-top:4px;">
                 ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
+              </div>
+            </div>` : ''}
+            ${p.cores && p.cores.length > 0 ? `
+            <div style="margin-top:0.6rem;">
+              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">${p.cores.length === 1 ? 'Cor' : 'Cores'}</span>
+              <div class="cores-display" style="margin-top:4px;">
+                ${p.cores.map(c => `<span class="cor-pill"><span class="color-dot" style="background:${fundoDaCor(c)}"></span>${escaparHTML(c)}</span>`).join('')}
               </div>
             </div>` : ''}
             <div class="product-footer" style="margin-top:0.75rem;">
@@ -3834,12 +3759,13 @@
       if (shoeState === 2) wrap.classList.add('slow');
     }
 
-    // ─── FILTROS (categoria / marca / numeração) ───
-    const _filtros = { categoria: 'todas', marca: 'todas', numero: 'todas' };
+    // ─── FILTROS (categoria / marca / cor / numeração) ───
+    const _filtros = { categoria: 'todas', marca: 'todas', cor: 'todas', numero: 'todas' };
 
     function filtroAtivo() {
       return _filtros.categoria !== 'todas'
           || _filtros.marca !== 'todas'
+          || _filtros.cor !== 'todas'
           || _filtros.numero !== 'todas';
     }
 
@@ -3850,6 +3776,11 @@
 
     function produtoPassa(p) {
       if (_filtros.marca !== 'todas' && normalizarMarca(p.brand) !== _filtros.marca) return false;
+      // um tênis pode ter várias cores: basta uma bater
+      if (_filtros.cor !== 'todas') {
+        const cores = (p.cores || []).map(normalizarCor);
+        if (!cores.includes(_filtros.cor)) return false;
+      }
       if (_filtros.numero !== 'todas') {
         const nums = (p.sizes || []).map(Number);
         if (!nums.includes(Number(_filtros.numero))) return false;
@@ -3872,6 +3803,15 @@
       return [...mapa.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
     }
 
+    // Só entram as cores que algum produto realmente tem, na ordem da paleta.
+    function coresDisponiveis() {
+      const usadas = new Set();
+      idsCategorias().forEach(s => getProducts(s).forEach(p => {
+        (p.cores || []).forEach(c => { if (normalizarCor(c)) usadas.add(normalizarCor(c)); });
+      }));
+      return CORES.filter(([nome]) => usadas.has(normalizarCor(nome)));
+    }
+
     function numerosDisponiveis() {
       const set = new Set();
       idsCategorias().forEach(s => getProducts(s).forEach(p => {
@@ -3888,6 +3828,7 @@
     function limparFiltros() {
       _filtros.categoria = 'todas';
       _filtros.marca = 'todas';
+      _filtros.cor = 'todas';
       _filtros.numero = 'todas';
       aplicarFiltros();
     }
@@ -3929,6 +3870,10 @@
         const m = marcasDisponiveis().find(par => par[0] === _filtros.marca);
         partes.push(m ? m[1] : _filtros.marca);
       }
+      if (_filtros.cor !== 'todas') {
+        const c = coresDisponiveis().find(par => normalizarCor(par[0]) === _filtros.cor);
+        partes.push(c ? c[0] : _filtros.cor);
+      }
       if (_filtros.numero !== 'todas') partes.push('nº ' + _filtros.numero);
 
       const total = idsCategorias().reduce((s, sec) => s + produtosVisiveis(sec).length, 0);
@@ -3936,11 +3881,13 @@
                        total + (total === 1 ? ' produto' : ' produtos');
     }
 
-    function criarChip(rotulo, ativo, aoClicar) {
+    // `cor` opcional: quando vem, o chip ganha a bolinha antes do texto
+    function criarChip(rotulo, ativo, aoClicar, cor) {
       const b = document.createElement('button');
       b.type = 'button';
-      b.className = 'filtro-chip' + (ativo ? ' ativo' : '');
-      b.textContent = rotulo;
+      b.className = 'filtro-chip' + (ativo ? ' ativo' : '') + (cor ? ' com-cor' : '');
+      if (cor) b.appendChild(bolinhaDeCor(cor));
+      b.appendChild(document.createTextNode(rotulo));
       b.onclick = aoClicar;
       return b;
     }
@@ -3949,6 +3896,7 @@
       const cats = document.getElementById('chips-categoria');
       if (!cats) return;
       const mars = document.getElementById('chips-marca');
+      const cors = document.getElementById('chips-cor');
       const nums = document.getElementById('chips-numero');
 
       cats.innerHTML = '';
@@ -3964,6 +3912,14 @@
         mars.appendChild(criarChip(rotulo, _filtros.marca === norm, () => setFiltro('marca', norm)));
       });
 
+      const cores = coresDisponiveis();
+      cors.innerHTML = '';
+      cors.appendChild(criarChip('Todas', _filtros.cor === 'todas', () => setFiltro('cor', 'todas')));
+      cores.forEach(([nome]) => {
+        const norm = normalizarCor(nome);
+        cors.appendChild(criarChip(nome, _filtros.cor === norm, () => setFiltro('cor', norm), nome));
+      });
+
       const numeros = numerosDisponiveis();
       nums.innerHTML = '';
       nums.appendChild(criarChip('Todas', _filtros.numero === 'todas', () => setFiltro('numero', 'todas')));
@@ -3973,6 +3929,7 @@
 
       // linha sem opção nenhuma não precisa aparecer
       document.getElementById('linha-marca').style.display  = marcas.length  ? '' : 'none';
+      document.getElementById('linha-cor').style.display    = cores.length   ? '' : 'none';
       document.getElementById('linha-numero').style.display = numeros.length ? '' : 'none';
 
       const total = idsCategorias().reduce((soma, s) => soma + produtosVisiveis(s).length, 0);
@@ -3982,9 +3939,6 @@
       document.getElementById('filtro-vazio').style.display =
         (filtroAtivo() && total === 0) ? 'block' : 'none';
 
-      // aqui e nao no aplicarFiltros: assim a faixa tambem se monta quando os
-      // produtos chegam do Firebase, nao so quando alguem clica num filtro
-      montarFaixaMarcas();
       atualizarResumoFiltros();
     }
 
@@ -4115,11 +4069,9 @@
     (async () => {
       aplicarEstadoBarraFiltros();
       await carregarCategorias();
-      await carregarMarcasLoja();
       montarSecoes();
       montarAbasAdmin();
       renderListaCategorias();
-      renderListaMarcas();
       atualizarFiltrosUI();
       await conectarSections();
     })();

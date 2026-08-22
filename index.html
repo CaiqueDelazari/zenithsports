@@ -1536,6 +1536,44 @@
       border-color: rgba(255,255,255,0.55);
     }
 
+    /* ─── NUMERAÇÃO POR COR ─── */
+    /* Painel: quando a numeração muda de uma cor para outra, cada cor marcada
+       ganha o seu próprio bloco de números. */
+    .num-mesma {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin: 0.6rem 0 0.2rem;
+      font-size: 0.8rem; color: var(--text-muted); cursor: pointer;
+    }
+    .num-mesma input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+
+    .num-cor-bloco {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.6rem 0.75rem 0.75rem;
+      margin-top: 0.6rem;
+      background: var(--surface);
+    }
+
+    .num-cor-titulo {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.76rem; font-weight: 700; color: var(--text);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .num-cor-aviso {
+      font-size: 0.78rem; color: var(--text-muted);
+      margin-top: 0.6rem; line-height: 1.5;
+    }
+
+    /* Card do site: uma linha por cor, com os números daquela cor. */
+    .numcor-linha {
+      display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+      margin-top: 5px;
+    }
+    .numcor-linha .sizes-display { margin-top: 0; }
+    /* filtrou por uma cor: as outras linhas saem de foco */
+    .numcor-linha.apagada { opacity: 0.3; }
+
     .admin-password-screen {
       display: flex;
       flex-direction: column;
@@ -2229,11 +2267,11 @@
           <div class="filtro-chips" id="chips-marca"></div>
         </div>
         <div class="filtro-linha" id="linha-cor">
-          <span class="filtro-label">Cor</span>
+          <span class="filtro-label" id="label-cor">Cor</span>
           <div class="filtro-chips" id="chips-cor"></div>
         </div>
         <div class="filtro-linha" id="linha-numero">
-          <span class="filtro-label">Numeração</span>
+          <span class="filtro-label" id="label-numero">Numeração</span>
           <div class="filtro-chips" id="chips-numero"></div>
         </div>
         <div class="filtro-rodape">
@@ -2432,12 +2470,17 @@
         <input type="text" id="edit-price" placeholder="Ex: R$ 299,90" />
       </div>
       <div class="admin-field">
-        <label>Numerações disponíveis</label>
-        <div class="edit-size-grid" id="edit-size-grid"></div>
-      </div>
-      <div class="admin-field">
         <label>Cores (o visitante filtra por elas)</label>
         <div class="edit-color-grid" id="edit-color-grid"></div>
+      </div>
+      <div class="admin-field">
+        <label>Numerações disponíveis</label>
+        <label class="num-mesma">
+          <input type="checkbox" id="edit-num-mesma" checked />
+          Todas as cores têm a mesma numeração
+        </label>
+        <div class="edit-size-grid" id="edit-num-geral"></div>
+        <div id="edit-num-porcor"></div>
       </div>
       <div class="admin-field">
         <label>Tag</label>
@@ -2533,16 +2576,19 @@
             <input type="text" id="product-price" placeholder="Ex: R$ 299,90" />
           </div>
           <div class="admin-field">
-            <label>Numerações disponíveis</label>
-            <div class="size-grid" id="size-grid">
-              <!-- gerado pelo JS -->
-            </div>
-          </div>
-          <div class="admin-field">
             <label>Cores (o visitante filtra por elas)</label>
             <div class="color-grid" id="color-grid">
               <!-- gerado pelo JS -->
             </div>
+          </div>
+          <div class="admin-field">
+            <label>Numerações disponíveis</label>
+            <label class="num-mesma">
+              <input type="checkbox" id="num-mesma" checked />
+              Todas as cores têm a mesma numeração
+            </label>
+            <div class="size-grid" id="num-geral"><!-- gerado pelo JS --></div>
+            <div id="num-porcor"><!-- gerado pelo JS --></div>
           </div>
           <div class="admin-field">
             <label>Tag</label>
@@ -2643,8 +2689,10 @@
     let currentSection = 'lancamentos';
     const MAX_PHOTOS = 6;
     let uploadedImages = new Array(MAX_PHOTOS).fill(null);
-    let selectedSizes = [];
     let selectedColors = [];
+    // Numeração: com `mesma` ligado vale uma lista só para o produto inteiro;
+    // desligado, cada cor marcada guarda a sua lista em `porCor` (chave = cor normalizada).
+    const _numNovo = { mesma: true, geral: [], porCor: {} };
 
     // ─── CORES ───
     // Lista fixa de propósito: se cada produto fosse cadastrado com a cor digitada
@@ -2697,7 +2745,8 @@
 
     // Monta uma grade de cores marcáveis. Usada no formulário de novo produto e
     // no modal de edição, cada um com sua própria lista de selecionadas.
-    function montarGradeCores(el, pegarLista, trocarLista) {
+    // `aoMudar` avisa quem depende das cores — hoje, a numeração por cor.
+    function montarGradeCores(el, pegarLista, trocarLista, aoMudar) {
       if (!el) return;
       el.innerHTML = '';
       CORES.forEach(([nome]) => {
@@ -2714,9 +2763,130 @@
             ? lista.filter(c => normalizarCor(c) !== normalizarCor(nome))
             : lista.concat([nome]));
           this.classList.toggle('selected', !tem);
+          if (aoMudar) aoMudar();
         };
         el.appendChild(btn);
       });
+    }
+
+    // ─── NUMERAÇÃO (geral ou por cor) ───
+    const NUM_MIN = 34, NUM_MAX = 45;
+
+    // Uma grade 34-45 ligada a uma lista qualquer. `pegar` devolve a lista atual,
+    // `trocar` recebe a nova — assim serve tanto para a geral quanto para cada cor.
+    function montarGradeNumeros(el, pegar, trocar) {
+      if (!el) return;
+      el.innerHTML = '';
+      for (let n = NUM_MIN; n <= NUM_MAX; n++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'size-btn' + (pegar().map(Number).includes(n) ? ' selected' : '');
+        btn.textContent = n;
+        btn.onclick = function () {
+          const lista = pegar().map(Number);
+          const tem = lista.includes(n);
+          trocar(tem ? lista.filter(x => x !== n) : lista.concat([n]));
+          this.classList.toggle('selected', !tem);
+        };
+        el.appendChild(btn);
+      }
+    }
+
+    // Desenha a área de numeração de um formulário: a caixinha "mesma numeração",
+    // a grade geral e — quando desmarcada — um bloco de números para cada cor.
+    // `prefixo` é o começo dos ids no HTML ('num' no formulário, 'edit-num' no modal).
+    function montarNumeracao(prefixo, estado, pegarCores, classeGrade) {
+      const chk    = document.getElementById(prefixo + '-mesma');
+      const geral  = document.getElementById(prefixo + '-geral');
+      const porCor = document.getElementById(prefixo + '-porcor');
+      if (!chk || !geral || !porCor) return;
+
+      const cores = ordenarCores(pegarCores());
+      chk.checked = estado.mesma;
+      // sem cor marcada não há o que separar: só a grade geral
+      chk.parentElement.style.display = cores.length ? '' : 'none';
+      const simples = estado.mesma || cores.length === 0;
+
+      geral.style.display = simples ? '' : 'none';
+      porCor.style.display = simples ? 'none' : '';
+
+      montarGradeNumeros(geral, () => estado.geral, l => { estado.geral = l; });
+
+      porCor.innerHTML = '';
+      if (!simples) {
+        cores.forEach(nome => {
+          const chave = normalizarCor(nome);
+          // cor recém-marcada começa com a numeração geral: ela só tira o que não tem
+          if (!estado.porCor[chave]) estado.porCor[chave] = [...estado.geral];
+
+          const bloco = document.createElement('div');
+          bloco.className = 'num-cor-bloco';
+          const titulo = document.createElement('div');
+          titulo.className = 'num-cor-titulo';
+          titulo.appendChild(bolinhaDeCor(nome));
+          titulo.appendChild(document.createTextNode(nome));
+          bloco.appendChild(titulo);
+
+          const grade = document.createElement('div');
+          grade.className = classeGrade;
+          bloco.appendChild(grade);
+          montarGradeNumeros(grade,
+            () => estado.porCor[chave] || [],
+            l => { estado.porCor[chave] = l; });
+
+          porCor.appendChild(bloco);
+        });
+      }
+
+      chk.onchange = function () {
+        estado.mesma = this.checked;
+        // voltando para a numeração única com a grade geral em branco,
+        // aproveita o que já foi marcado nas cores
+        if (estado.mesma && !estado.geral.length) {
+          const juntos = [].concat(...Object.keys(estado.porCor).map(k => estado.porCor[k] || []));
+          estado.geral = [...new Set(juntos.map(Number))].sort((a, b) => a - b);
+        }
+        montarNumeracao(prefixo, estado, pegarCores, classeGrade);
+      };
+    }
+
+    // Com numeração por cor, cada cor marcada precisa de pelo menos um número:
+    // senão a cor entra no filtro e o card dela fica sem numeração nenhuma.
+    function conferirNumeracao(estado, cores) {
+      if (estado.mesma || !cores.length) return null;
+      const vazias = ordenarCores(cores)
+        .filter(c => !(estado.porCor[normalizarCor(c)] || []).length);
+      if (!vazias.length) return null;
+      return 'Falta marcar a numeração de: ' + vazias.join(', ') + '.\n\n' +
+             'Marque ao menos um número para cada cor — ou desmarque a cor.';
+    }
+
+    // O que vai para o Firestore. `numerosPorCor` só existe quando a numeração
+    // muda de cor para cor; `sizes` continua sendo a lista cheia, para o card e
+    // para os produtos antigos, que não têm o campo novo.
+    function numeracaoParaSalvar(estado, cores) {
+      const ordenar = l => [...new Set(l.map(Number))].sort((a, b) => a - b);
+      if (estado.mesma || cores.length === 0) {
+        return { sizes: ordenar(estado.geral), numerosPorCor: null };
+      }
+      const mapa = {};
+      ordenarCores(cores).forEach(c => {
+        mapa[normalizarCor(c)] = ordenar(estado.porCor[normalizarCor(c)] || []);
+      });
+      const uniao = ordenar([].concat(...Object.values(mapa)));
+      return { sizes: uniao, numerosPorCor: mapa };
+    }
+
+    // Caminho inverso: produto salvo -> estado do formulário.
+    function numeracaoDoProduto(p) {
+      const mapa = (p && p.numerosPorCor && typeof p.numerosPorCor === 'object') ? p.numerosPorCor : null;
+      const porCor = {};
+      if (mapa) Object.keys(mapa).forEach(k => { porCor[k] = (mapa[k] || []).map(Number); });
+      return {
+        mesma: !mapa,
+        geral: ((p && p.sizes) || []).map(Number),
+        porCor
+      };
     }
 
     // gera os slots de foto do painel admin
@@ -2739,35 +2909,19 @@
       }
     })();
 
-    // gera botões de numeração 35-45
-    (function buildSizeGrid() {
-      const grid = document.getElementById('size-grid');
-      for (let n = 34; n <= 45; n++) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'size-btn';
-        btn.textContent = n;
-        btn.dataset.size = n;
-        btn.onclick = function() {
-          const s = parseInt(this.dataset.size);
-          if (selectedSizes.includes(s)) {
-            selectedSizes = selectedSizes.filter(x => x !== s);
-            this.classList.remove('selected');
-          } else {
-            selectedSizes.push(s);
-            this.classList.add('selected');
-          }
-        };
-        grid.appendChild(btn);
-      }
-    })();
+    // Grades do formulário de novo produto. A de cor redesenha a numeração:
+    // marcar uma cor nova faz aparecer o bloco de números dela.
+    function atualizarNumeracaoNovo() {
+      montarNumeracao('num', _numNovo, () => selectedColors, 'size-grid');
+    }
 
-    // gera os botões de cor do formulário
     montarGradeCores(
       document.getElementById('color-grid'),
       () => selectedColors,
-      lista => { selectedColors = lista; }
+      lista => { selectedColors = lista; },
+      atualizarNumeracaoNovo
     );
+    atualizarNumeracaoNovo();
 
     // ─── FIREBASE INIT ───
     firebase.initializeApp({
@@ -3400,12 +3554,15 @@
 
       if (!name) { alert('Digite o nome do produto.'); return; }
 
+      const aviso = conferirNumeracao(_numNovo, selectedColors);
+      if (aviso) { alert(aviso); return; }
+
       const imgs = uploadedImages.filter(Boolean);
       const product = {
         id: Date.now(),
         brand, name, desc, price, tag,
-        sizes: [...selectedSizes].sort((a,b) => a-b),
-        cores: ordenarCores(selectedColors)
+        cores: ordenarCores(selectedColors),
+        ...numeracaoParaSalvar(_numNovo, selectedColors)
       };
 
       let salvo;
@@ -3431,10 +3588,10 @@
       document.getElementById('product-desc').value = '';
       document.getElementById('product-price').value = '';
       document.getElementById('product-tag').value = 'new';
-      selectedSizes = [];
-      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       selectedColors = [];
       document.querySelectorAll('#color-grid .color-btn').forEach(b => b.classList.remove('selected'));
+      _numNovo.mesma = true; _numNovo.geral = []; _numNovo.porCor = {};
+      atualizarNumeracaoNovo();
       uploadedImages = new Array(MAX_PHOTOS).fill(null);
       for (let i = 0; i < MAX_PHOTOS; i++) {
         const prev = document.getElementById('pprev-' + i);
@@ -3460,21 +3617,26 @@
 
     let _editSection = null;
     let _editId = null;
-    let _editSizes = [];
     let _editColors = [];
+    let _editNum = { mesma: true, geral: [], porCor: {} };
+
+    function atualizarNumeracaoEdicao() {
+      montarNumeracao('edit-num', _editNum, () => _editColors, 'edit-size-grid');
+    }
 
     function openEditModal(section, id) {
       const product = getProducts(section).find(p => p.id === id);
       if (!product) return;
       _editSection = section;
       _editId = id;
-      _editSizes = [...(product.sizes || [])];
       _editColors = [...(product.cores || [])];
+      _editNum = numeracaoDoProduto(product);
 
       montarGradeCores(
         document.getElementById('edit-color-grid'),
         () => _editColors,
-        lista => { _editColors = lista; }
+        lista => { _editColors = lista; },
+        atualizarNumeracaoEdicao
       );
 
       document.getElementById('edit-brand').value = product.brand || '';
@@ -3482,46 +3644,33 @@
       document.getElementById('edit-price').value = product.price || '';
       document.getElementById('edit-tag').value   = product.tag   || 'new';
 
-      // monta grade de numerações
-      const grid = document.getElementById('edit-size-grid');
-      grid.innerHTML = '';
-      for (let n = 34; n <= 45; n++) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'size-btn' + (_editSizes.includes(n) ? ' selected' : '');
-        btn.textContent = n;
-        btn.onclick = function() {
-          if (_editSizes.includes(n)) {
-            _editSizes = _editSizes.filter(s => s !== n);
-            btn.classList.remove('selected');
-          } else {
-            _editSizes.push(n);
-            btn.classList.add('selected');
-          }
-        };
-        grid.appendChild(btn);
-      }
+      atualizarNumeracaoEdicao();
 
       document.getElementById('edit-modal').classList.add('open');
     }
 
     function closeEditModal() {
       document.getElementById('edit-modal').classList.remove('open');
-      _editSection = null; _editId = null; _editSizes = []; _editColors = [];
+      _editSection = null; _editId = null; _editColors = [];
+      _editNum = { mesma: true, geral: [], porCor: {} };
     }
 
     function saveEdit() {
       if (!_editSection || !_editId) return;
       const current = getProducts(_editSection).find(p => p.id === _editId);
       if (!current) return;
+
+      const aviso = conferirNumeracao(_editNum, _editColors);
+      if (aviso) { alert(aviso); return; }
+
       const updated = {
         ...current,
         brand: document.getElementById('edit-brand').value.trim(),
         name:  document.getElementById('edit-name').value.trim()  || current.name,
         price: document.getElementById('edit-price').value.trim(),
         tag:   document.getElementById('edit-tag').value,
-        sizes: [..._editSizes].sort((a, b) => a - b),
         cores: ordenarCores(_editColors),
+        ...numeracaoParaSalvar(_editNum, _editColors),
       };
       saveProduct(_editSection, updated);
       _cache[_editSection] = getProducts(_editSection).map(p => p.id === _editId ? updated : p);
@@ -3562,6 +3711,46 @@
     }
 
     const tagLabels = { new: 'Novo', hot: 'Hot', exclusive: 'Exclusivo', outlet: 'Outlet' };
+
+    // Bloco de numeração do card. Quando cada cor tem a sua numeração, sai uma
+    // linha por cor (a bolinha + os números dela) e a lista de cores separada
+    // deixa de existir, porque essas linhas já mostram as cores.
+    function blocoNumeracaoCard(p) {
+      const titulo = t => '<span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;' +
+                          'text-transform:uppercase;font-weight:600;">' + t + '</span>';
+      const pills = ns => '<div class="sizes-display">' +
+                          ns.map(s => `<span class="size-pill">${s}</span>`).join('') + '</div>';
+      const cores = p.cores || [];
+
+      if (p.numerosPorCor && typeof p.numerosPorCor === 'object') {
+        const linhas = cores.map(c => {
+          const norm = normalizarCor(c);
+          const nums = numerosDaCor(p, norm);
+          if (!nums.length) return '';
+          // filtrou por uma cor: as outras saem de foco, mas continuam visíveis
+          const apagada = (_filtros.cor !== 'todas' && _filtros.cor !== norm) ? ' apagada' : '';
+          return `<div class="numcor-linha${apagada}">
+                    <span class="cor-pill"><span class="color-dot" style="background:${fundoDaCor(c)}"></span>${escaparHTML(c)}</span>
+                    ${pills(nums)}
+                  </div>`;
+        }).join('');
+        if (!linhas) return '';
+        return `<div style="margin-top:0.6rem;">${titulo('Numeração por cor')}<div style="margin-top:4px;">${linhas}</div></div>`;
+      }
+
+      let html = '';
+      if (p.sizes && p.sizes.length) {
+        html += `<div style="margin-top:0.6rem;">${titulo('Numeração Disponível')}${pills(p.sizes)}</div>`;
+      }
+      if (cores.length) {
+        html += `<div style="margin-top:0.6rem;">${titulo(cores.length === 1 ? 'Cor' : 'Cores')}
+                   <div class="cores-display">
+                     ${cores.map(c => `<span class="cor-pill"><span class="color-dot" style="background:${fundoDaCor(c)}"></span>${escaparHTML(c)}</span>`).join('')}
+                   </div>
+                 </div>`;
+      }
+      return html;
+    }
 
     function renderSection(section) {
       const grid = document.getElementById('grid-' + section);
@@ -3625,20 +3814,7 @@
               <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Preço</span>
               <div class="product-price" style="margin-top:2px;">${p.price}</div>
             </div>` : ''}
-            ${p.sizes && p.sizes.length > 0 ? `
-            <div style="margin-top:0.6rem;">
-              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">Numeração Disponível</span>
-              <div class="sizes-display" style="margin-top:4px;">
-                ${p.sizes.map(s => `<span class="size-pill">${s}</span>`).join('')}
-              </div>
-            </div>` : ''}
-            ${p.cores && p.cores.length > 0 ? `
-            <div style="margin-top:0.6rem;">
-              <span style="font-size:0.7rem;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;font-weight:600;">${p.cores.length === 1 ? 'Cor' : 'Cores'}</span>
-              <div class="cores-display" style="margin-top:4px;">
-                ${p.cores.map(c => `<span class="cor-pill"><span class="color-dot" style="background:${fundoDaCor(c)}"></span>${escaparHTML(c)}</span>`).join('')}
-              </div>
-            </div>` : ''}
+            ${blocoNumeracaoCard(p)}
             <div class="product-footer" style="margin-top:0.75rem;">
               <a href="https://wa.me/message/65CY4ULKYWVTI1" target="_blank" class="product-cta">Consultar →</a>
             </div>
@@ -3774,50 +3950,123 @@
       return (m || '').trim().toLowerCase();
     }
 
-    function produtoPassa(p) {
-      if (_filtros.marca !== 'todas' && normalizarMarca(p.brand) !== _filtros.marca) return false;
+    // Numeração daquela cor. Produto sem `numerosPorCor` (cadastro antigo ou
+    // numeração igual em todas as cores) devolve a lista cheia.
+    function numerosDaCor(p, corNorm) {
+      const mapa = p.numerosPorCor;
+      if (mapa && typeof mapa === 'object') return (mapa[corNorm] || []).map(Number);
+      return (p.sizes || []).map(Number);
+    }
+
+    // Todos os números do produto, somando as cores quando cada uma tem a sua lista.
+    function todosNumeros(p) {
+      const mapa = p.numerosPorCor;
+      if (mapa && typeof mapa === 'object') {
+        const juntos = [].concat(...Object.keys(mapa).map(k => mapa[k] || []));
+        return [...new Set(juntos.map(Number))];
+      }
+      return (p.sizes || []).map(Number);
+    }
+
+    // `ignorar` = dimensão que não deve ser testada. Serve para montar as opções
+    // de um filtro sem que ele exclua a si mesmo (ver `produtosParaOpcoes`).
+    function produtoPassa(p, ignorar) {
+      if (ignorar !== 'marca' && _filtros.marca !== 'todas'
+          && normalizarMarca(p.brand) !== _filtros.marca) return false;
+
+      const testaCor = ignorar !== 'cor'    && _filtros.cor    !== 'todas';
+      const testaNum = ignorar !== 'numero' && _filtros.numero !== 'todas';
+
       // um tênis pode ter várias cores: basta uma bater
-      if (_filtros.cor !== 'todas') {
+      if (testaCor) {
         const cores = (p.cores || []).map(normalizarCor);
         if (!cores.includes(_filtros.cor)) return false;
       }
-      if (_filtros.numero !== 'todas') {
-        const nums = (p.sizes || []).map(Number);
-        if (!nums.includes(Number(_filtros.numero))) return false;
+      if (testaNum) {
+        // com cor escolhida, o número tem que existir NAQUELA cor —
+        // é o que faz "Azul 40" não trazer o tênis que só tem 40 no preto
+        const lista = testaCor ? numerosDaCor(p, _filtros.cor) : todosNumeros(p);
+        if (!lista.includes(Number(_filtros.numero))) return false;
       }
       return true;
     }
 
     function produtosVisiveis(section) {
       if (_filtros.categoria !== 'todas' && _filtros.categoria !== section) return [];
-      return getProducts(section).filter(produtoPassa);
+      return getProducts(section).filter(p => produtoPassa(p));
+    }
+
+    // Todos os produtos que passam nos filtros, menos o filtro `ignorar`.
+    // É daqui que saem as opções: escolhendo Azul, os números listados passam a ser
+    // só os que existem em algum tênis azul — nunca sobra um botão que dá lista vazia.
+    function produtosParaOpcoes(ignorar) {
+      const secoes = (ignorar !== 'categoria' && _filtros.categoria !== 'todas')
+        ? [_filtros.categoria]
+        : idsCategorias();
+      const fora = [];
+      secoes.forEach(s => getProducts(s).forEach(p => {
+        if (produtoPassa(p, ignorar)) fora.push(p);
+      }));
+      return fora;
+    }
+
+    // Categorias que ainda têm algum produto dentro dos outros filtros.
+    function categoriasDisponiveis() {
+      return CATEGORIAS.filter(c =>
+        getProducts(c.id).some(p => produtoPassa(p, 'categoria')));
     }
 
     // As opções saem dos produtos cadastrados: marca nova vira botão sozinha.
     function marcasDisponiveis() {
       const mapa = new Map();
-      idsCategorias().forEach(s => getProducts(s).forEach(p => {
+      produtosParaOpcoes('marca').forEach(p => {
         const norm = normalizarMarca(p.brand);
         if (norm && !mapa.has(norm)) mapa.set(norm, p.brand.trim());
-      }));
+      });
       return [...mapa.entries()].sort((a, b) => a[1].localeCompare(b[1], 'pt-BR'));
     }
 
     // Só entram as cores que algum produto realmente tem, na ordem da paleta.
     function coresDisponiveis() {
       const usadas = new Set();
-      idsCategorias().forEach(s => getProducts(s).forEach(p => {
-        (p.cores || []).forEach(c => { if (normalizarCor(c)) usadas.add(normalizarCor(c)); });
-      }));
+      produtosParaOpcoes('cor').forEach(p => {
+        (p.cores || []).forEach(c => {
+          const norm = normalizarCor(c);
+          if (!norm) return;
+          // com número escolhido, só entra a cor que tem aquele número
+          if (_filtros.numero !== 'todas'
+              && !numerosDaCor(p, norm).includes(Number(_filtros.numero))) return;
+          usadas.add(norm);
+        });
+      });
       return CORES.filter(([nome]) => usadas.has(normalizarCor(nome)));
     }
 
+    // É aqui que mora o pedido: com uma cor escolhida, os números listados são
+    // só os daquela cor — o 42 que só existe no preto some quando o filtro é azul.
     function numerosDisponiveis() {
       const set = new Set();
-      idsCategorias().forEach(s => getProducts(s).forEach(p => {
-        (p.sizes || []).forEach(n => { if (n || n === 0) set.add(Number(n)); });
-      }));
+      produtosParaOpcoes('numero').forEach(p => {
+        const lista = _filtros.cor !== 'todas' ? numerosDaCor(p, _filtros.cor) : todosNumeros(p);
+        lista.forEach(n => { if (n || n === 0) set.add(Number(n)); });
+      });
       return [...set].sort((a, b) => a - b);
+    }
+
+    // O admin pode apagar/editar produto com o filtro ligado (o site ouve o Firebase
+    // em tempo real). Se a escolha atual sumiu do catálogo, volta pra "Todas".
+    function sanearFiltros() {
+      if (_filtros.categoria !== 'todas'
+          && !CATEGORIAS.some(c => c.id === _filtros.categoria)) _filtros.categoria = 'todas';
+      if (_filtros.marca !== 'todas'
+          && !marcasDisponiveis().some(([n]) => n === _filtros.marca)) _filtros.marca = 'todas';
+      if (_filtros.cor !== 'todas'
+          && !coresDisponiveis().some(([n]) => normalizarCor(n) === _filtros.cor)) _filtros.cor = 'todas';
+      if (_filtros.numero !== 'todas'
+          && !numerosDisponiveis().some(n => String(n) === String(_filtros.numero))) _filtros.numero = 'todas';
+      // por último: se a categoria escolhida ficou sem produto nenhum, solta ela também
+      if (_filtros.categoria !== 'todas'
+          && !categoriasDisponiveis().some(c => c.id === _filtros.categoria)) _filtros.categoria = 'todas';
     }
 
     function setFiltro(qual, valor) {
@@ -3899,9 +4148,10 @@
       const cors = document.getElementById('chips-cor');
       const nums = document.getElementById('chips-numero');
 
+      const categorias = categoriasDisponiveis();
       cats.innerHTML = '';
       cats.appendChild(criarChip('Todas', _filtros.categoria === 'todas', () => setFiltro('categoria', 'todas')));
-      CATEGORIAS.forEach(c => {
+      categorias.forEach(c => {
         cats.appendChild(criarChip(c.nome, _filtros.categoria === c.id, () => setFiltro('categoria', c.id)));
       });
 
@@ -3926,6 +4176,18 @@
       numeros.forEach(n => {
         nums.appendChild(criarChip(String(n), String(_filtros.numero) === String(n), () => setFiltro('numero', n)));
       });
+
+      // Deixa claro que a lista encolheu por causa da outra escolha:
+      // "Numeração · em Azul" mostra que ali só estão os números que o azul tem.
+      const rotuloCor = _filtros.cor === 'todas'
+        ? null
+        : (CORES.find(([n]) => normalizarCor(n) === _filtros.cor) || [_filtros.cor])[0];
+      const labCor = document.getElementById('label-cor');
+      const labNum = document.getElementById('label-numero');
+      if (labCor) labCor.textContent = 'Cor' +
+        (_filtros.numero === 'todas' ? '' : ' \u00b7 no n\u00ba ' + _filtros.numero);
+      if (labNum) labNum.textContent = 'Numera\u00e7\u00e3o' +
+        (rotuloCor ? ' \u00b7 em ' + rotuloCor : '');
 
       // linha sem opção nenhuma não precisa aparecer
       document.getElementById('linha-marca').style.display  = marcas.length  ? '' : 'none';
@@ -3952,6 +4214,7 @@
     }
 
     function aplicarFiltros() {
+      sanearFiltros();
       idsCategorias().forEach(atualizarSecao);
       atualizarFiltrosUI();
     }

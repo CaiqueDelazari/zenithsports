@@ -1358,6 +1358,12 @@
 
     .admin-product-item-info { flex: 1; min-width: 0; }
 
+    /* no celular os botões (Mover / Editar / Remover) descem para a linha de baixo */
+    @media (max-width: 520px) {
+      .admin-product-item { flex-wrap: wrap; }
+      .admin-product-item > div:last-child { width: 100%; flex-shrink: 1 !important; flex-wrap: wrap; }
+    }
+
     .admin-product-item-name {
       font-weight: 600;
       font-size: 0.88rem;
@@ -1942,6 +1948,10 @@
     }
 
     .admin-cat-nova input:focus { border-color: var(--accent); }
+    .admin-cat-nova input.cor-picker { flex: 0 0 44px; min-width: 44px; height: 36px; padding: 2px; cursor: pointer; }
+    .cor-item-nome { display: flex; align-items: center; gap: 0.5rem; }
+    .cor-padrao-lista { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 0.5rem; }
+    .cor-padrao-lista .color-dot { width: 18px; height: 18px; }
 
     .admin-cat-nova button {
       background: var(--accent);
@@ -2565,6 +2575,17 @@
           </div>
         </details>
 
+        <!-- CORES -->
+        <details class="admin-cats">
+          <summary>Gerenciar cores</summary>
+          <div id="lista-cores"></div>
+          <div class="admin-cat-nova">
+            <input type="text" id="nova-cor-nome" placeholder="Nome (ex: Verde Água)" maxlength="30" />
+            <input type="color" id="nova-cor-valor" value="#00b3a4" title="Escolha a cor" class="cor-picker" />
+            <button onclick="criarCor()">+ Criar cor</button>
+          </div>
+        </details>
+
         <!-- ABAS DE SEÇÃO -->
         <div class="admin-section-tabs"></div>
 
@@ -2710,10 +2731,11 @@
     const _numNovo = { mesma: true, geral: [], porCor: {} };
 
     // ─── CORES ───
-    // Lista fixa de propósito: se cada produto fosse cadastrado com a cor digitada
+    // Paleta fechada de propósito: se cada produto fosse cadastrado com a cor digitada
     // à mão, "Azul marinho" e "azul-marinho" viravam dois filtros diferentes.
-    // Para somar uma cor nova, é só acrescentar uma linha aqui.
-    const CORES = [
+    // As cores abaixo são fixas; o admin soma outras em "Gerenciar cores" (ficam em
+    // config/cores no Firestore) e elas entram em CORES logo depois destas.
+    const CORES_PADRAO = [
       ['Preto',        '#111111'],
       ['Branco',       '#ffffff'],
       ['Cinza',        '#9a9a9a'],
@@ -2733,6 +2755,8 @@
       ['Dourado',      '#d4a017'],
       ['Colorido',     'linear-gradient(135deg,#ff3b3b,#ffd400,#1faa4b,#1f6fd6,#7b3fb5)'],
     ];
+
+    let CORES = CORES_PADRAO.slice();
 
     function normalizarCor(c) {
       return (c || '').trim().toLowerCase();
@@ -2930,12 +2954,15 @@
       montarNumeracao('num', _numNovo, () => selectedColors, 'size-grid');
     }
 
-    montarGradeCores(
-      document.getElementById('color-grid'),
-      () => selectedColors,
-      lista => { selectedColors = lista; },
-      atualizarNumeracaoNovo
-    );
+    function montarGradeCoresNovo() {
+      montarGradeCores(
+        document.getElementById('color-grid'),
+        () => selectedColors,
+        lista => { selectedColors = lista; },
+        atualizarNumeracaoNovo
+      );
+    }
+    montarGradeCoresNovo();
     atualizarNumeracaoNovo();
 
     // ─── FIREBASE INIT ───
@@ -3089,6 +3116,142 @@
         b.onclick = () => selectSection(c.id, b);
         wrap.appendChild(b);
       });
+    }
+
+    // ─── CORES CRIADAS PELO ADMIN ───
+    // config/cores = { lista: [{ nome, cor }] }. As fixas (CORES_PADRAO) não saem
+    // daqui; as do admin entram depois delas, na ordem em que foram criadas.
+    let _coresExtras = [];
+
+    function coresRef() {
+      return db.collection('config').doc('cores');
+    }
+
+    function aplicarCoresExtras(lista) {
+      const fixas = new Set(CORES_PADRAO.map(([n]) => normalizarCor(n)));
+      _coresExtras = (Array.isArray(lista) ? lista : [])
+        .filter(c => c && typeof c.nome === 'string' && c.nome.trim() && !fixas.has(normalizarCor(c.nome)))
+        .map(c => ({ nome: c.nome.trim(), cor: /^#[0-9a-f]{6}$/i.test(c.cor || '') ? c.cor : '#666666' }));
+      CORES = CORES_PADRAO.concat(_coresExtras.map(c => [c.nome, c.cor]));
+    }
+
+    async function carregarCores() {
+      try {
+        const snap = await coresRef().get();
+        aplicarCoresExtras(snap.exists ? (snap.data() || {}).lista : []);
+      } catch (err) {
+        // sem a leitura, o site segue com as cores fixas
+        console.error('Não consegui ler as cores:', err);
+      }
+    }
+
+    // Redesenha tudo que mostra a paleta: formulário, lista do painel e filtros.
+    function coresMudaram() {
+      montarGradeCoresNovo();
+      renderListaCores();
+      idsCategorias().forEach(atualizarSecao);
+      atualizarFiltrosUI();
+    }
+
+    function produtosComCor(nome) {
+      const norm = normalizarCor(nome);
+      let qtd = 0;
+      idsCategorias().forEach(s => getProducts(s).forEach(p => {
+        if ((p.cores || []).some(c => normalizarCor(c) === norm)) qtd++;
+      }));
+      return qtd;
+    }
+
+    function renderListaCores() {
+      const el = document.getElementById('lista-cores');
+      if (!el) return;
+      el.innerHTML = '';
+
+      const fixas = document.createElement('div');
+      fixas.className = 'cat-qtd';
+      fixas.textContent = 'Cores fixas do site:';
+      el.appendChild(fixas);
+      const bolas = document.createElement('div');
+      bolas.className = 'cor-padrao-lista';
+      CORES_PADRAO.forEach(([nome]) => {
+        const b = bolinhaDeCor(nome);
+        b.title = nome;
+        bolas.appendChild(b);
+      });
+      el.appendChild(bolas);
+
+      if (!_coresExtras.length) {
+        const vazio = document.createElement('div');
+        vazio.className = 'cat-qtd';
+        vazio.textContent = 'Nenhuma cor criada por você ainda.';
+        el.appendChild(vazio);
+        return;
+      }
+      _coresExtras.forEach(c => {
+        const qtd = produtosComCor(c.nome);
+        const linha = document.createElement('div');
+        linha.className = 'cat-item';
+        linha.innerHTML =
+          '<div class="cat-info"><div class="cat-nome cor-item-nome"></div>' +
+          '<div class="cat-qtd">' + qtd + (qtd === 1 ? ' produto' : ' produtos') + '</div></div>' +
+          '<div class="cat-acoes"><button title="Remover" class="cat-del">✕</button></div>';
+        const nome = linha.querySelector('.cat-nome');
+        nome.appendChild(bolinhaDeCor(c.nome));
+        nome.appendChild(document.createTextNode(c.nome));
+        linha.querySelector('button').onclick = () => removerCor(c.nome);
+        el.appendChild(linha);
+      });
+    }
+
+    // Grava a lista inteira de novo a partir do que está no banco agora, para não
+    // perder uma cor criada em outro aparelho desde que esta página abriu.
+    async function gravarCores(mudar) {
+      const snap = await coresRef().get();
+      aplicarCoresExtras(snap.exists ? (snap.data() || {}).lista : []);
+      const nova = mudar(_coresExtras.slice());
+      if (!nova) return false;
+      await coresRef().set({ lista: nova });
+      aplicarCoresExtras(nova);
+      return true;
+    }
+
+    async function criarCor() {
+      const campo = document.getElementById('nova-cor-nome');
+      const nome = campo.value.trim().replace(/\s+/g, ' ');
+      const cor = document.getElementById('nova-cor-valor').value;
+      if (!nome) { alert('Digite o nome da cor.'); return; }
+      try {
+        const ok = await gravarCores(lista => {
+          if (CORES.some(([n]) => normalizarCor(n) === normalizarCor(nome))) {
+            alert('Já existe a cor "' + nome + '".');
+            return null;
+          }
+          return lista.concat([{ nome, cor }]);
+        });
+        if (!ok) return;
+      } catch (err) {
+        alert('Não consegui criar a cor: ' + err.message);
+        return;
+      }
+      campo.value = '';
+      coresMudaram();
+    }
+
+    async function removerCor(nome) {
+      const qtd = produtosComCor(nome);
+      const aviso = qtd
+        ? 'A cor "' + nome + '" está em ' + qtd + (qtd === 1 ? ' produto' : ' produtos') +
+          '.\n\nEla sai da lista e do filtro do site, e nesses produtos a bolinha fica cinza ' +
+          'até você marcar outra cor na edição.\n\nRemover mesmo assim?'
+        : 'Remover a cor "' + nome + '"?';
+      if (!confirm(aviso)) return;
+      try {
+        await gravarCores(lista => lista.filter(c => normalizarCor(c.nome) !== normalizarCor(nome)));
+      } catch (err) {
+        alert('Não consegui remover a cor: ' + err.message);
+        return;
+      }
+      coresMudaram();
     }
 
     function renderListaCategorias() {
@@ -3429,6 +3592,7 @@
         if (quem) quem.textContent = user.email || '';
         renderAdminList();
         renderListaCategorias();
+        renderListaCores();
       }
     }
 
@@ -4465,6 +4629,7 @@
         atualizarSecao(section);
         atualizarFiltrosUI();
         renderListaCategorias();
+        renderListaCores();
         atualizarAdminSePreciso();
       }, err => console.error('Erro ao carregar ' + section + ':', err));
     }
@@ -4514,6 +4679,8 @@
 
     (async () => {
       aplicarEstadoBarraFiltros();
+      await carregarCores();
+      montarGradeCoresNovo();
       await carregarCategorias();
       montarSecoes();
       montarAbasAdmin();

@@ -1417,6 +1417,11 @@
     .edit-modal-box h3 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.3rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--text); margin-bottom: 1.25rem; }
     .edit-modal-box h3 span { color: var(--accent); }
     .edit-size-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+    .edit-photos-aviso { font-size: 0.75rem; color: var(--text-muted); margin: 0 0 0.5rem; display: none; }
+    .edit-photo-acoes { position: absolute; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-between; padding: 4px; gap: 4px; background: linear-gradient(transparent, rgba(0,0,0,0.75)); }
+    .edit-photo-acoes button { border: none; border-radius: 6px; background: rgba(0,0,0,0.7); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 4px 8px; cursor: pointer; }
+    .edit-photo-acoes button:hover { background: var(--accent); color: #080808; }
+    .edit-photo-capa { position: absolute; top: 4px; left: 4px; background: var(--accent); color: #080808; font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; }
 
     /* ─── SIZE GRID ─── */
     .size-grid {
@@ -2457,6 +2462,12 @@
     <div class="edit-modal-box">
       <h3>Editar <span>Produto</span></h3>
 
+      <div class="admin-field">
+        <label>Fotos do Produto (até 6) &middot; a primeira é a capa</label>
+        <p id="edit-photos-aviso" class="edit-photos-aviso"></p>
+        <div class="admin-photos-row" id="edit-photos-row"></div>
+        <input type="file" id="edit-photo-input" accept="image/*" style="display:none" />
+      </div>
       <div class="admin-field">
         <label>Marca</label>
         <input type="text" id="edit-brand" placeholder="Ex: Nike, Adidas..." />
@@ -3628,6 +3639,129 @@
       montarNumeracao('edit-num', _editNum, () => _editColors, 'edit-size-grid');
     }
 
+    // ─── FOTOS NA EDIÇÃO ───
+    // `_editImgs` é a lista final, na ordem (a primeira vira a capa). As fotos 2+
+    // ficam em media/extra e precisam ser baixadas antes de liberar a edição:
+    // salvar sem elas apagaria as fotos que o admin nem chegou a ver.
+    let _editImgs = [];
+    let _editImgsProntas = false;
+    let _editImgsMudou = false;
+    let _editFotoAlvo = -1; // posição que o seletor de arquivo vai preencher
+
+    function avisoFotosEdicao(texto) {
+      const el = document.getElementById('edit-photos-aviso');
+      el.textContent = texto || '';
+      el.style.display = texto ? 'block' : 'none';
+    }
+
+    async function carregarFotosEdicao(section, product) {
+      const id = product.id;
+      const total = totalImgs(product);
+      let imgs = ((window._prodImgs || {})[id] || []).slice();
+      if (!imgs.length || imgs[0] !== knownImgs(product)[0]) imgs = knownImgs(product).slice();
+
+      if (imgs.length < total) {
+        avisoFotosEdicao('Carregando as fotos...');
+        try {
+          const snap = await mediaRef(section, id).get();
+          const extra = (snap.exists && snap.data().imgs) || [];
+          imgs = imgs.slice(0, 1).concat(extra);
+        } catch (err) {
+          console.error('Erro ao carregar as fotos para editar:', err);
+          if (_editId !== id) return;
+          avisoFotosEdicao('Não consegui carregar as fotos. Feche e abra de novo para editá-las (o resto pode ser salvo normalmente).');
+          return;
+        }
+      }
+      if (_editId !== id) return; // o admin já fechou ou abriu outro produto
+      _editImgs = imgs.slice(0, MAX_PHOTOS);
+      _editImgsProntas = true;
+      avisoFotosEdicao('');
+      renderFotosEdicao();
+    }
+
+    function renderFotosEdicao() {
+      const row = document.getElementById('edit-photos-row');
+      row.innerHTML = '';
+      if (!_editImgsProntas) return;
+      const vagas = Math.min(MAX_PHOTOS, _editImgs.length + 1);
+      for (let i = 0; i < vagas; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'admin-photo-slot';
+        const src = _editImgs[i];
+        if (src) {
+          slot.classList.add('filled');
+          slot.title = 'Clique para trocar esta foto';
+          const img = document.createElement('img');
+          img.className = 'pslot-preview';
+          img.style.display = 'block';
+          img.src = src;
+          slot.appendChild(img);
+          if (i === 0) {
+            const capa = document.createElement('span');
+            capa.className = 'edit-photo-capa';
+            capa.textContent = 'Capa';
+            slot.appendChild(capa);
+          }
+          const acoes = document.createElement('div');
+          acoes.className = 'edit-photo-acoes';
+          if (i > 0) {
+            const esq = document.createElement('button');
+            esq.type = 'button';
+            esq.textContent = '◀';
+            esq.title = i === 1 ? 'Usar como capa' : 'Mover para a esquerda';
+            esq.onclick = e => { e.stopPropagation(); moverFotoEdicao(i, i - 1); };
+            acoes.appendChild(esq);
+          } else {
+            acoes.appendChild(document.createElement('span'));
+          }
+          const rem = document.createElement('button');
+          rem.type = 'button';
+          rem.textContent = '✕';
+          rem.title = 'Remover esta foto';
+          rem.onclick = e => { e.stopPropagation(); removerFotoEdicao(i); };
+          acoes.appendChild(rem);
+          slot.appendChild(acoes);
+        } else {
+          slot.innerHTML = '<div class="pslot-ph"><div style="font-size:1.4rem">📷</div><span>Adicionar</span></div>';
+        }
+        slot.onclick = () => {
+          _editFotoAlvo = i;
+          document.getElementById('edit-photo-input').click();
+        };
+        row.appendChild(slot);
+      }
+    }
+
+    function moverFotoEdicao(de, para) {
+      const [foto] = _editImgs.splice(de, 1);
+      _editImgs.splice(para, 0, foto);
+      _editImgsMudou = true;
+      renderFotosEdicao();
+    }
+
+    function removerFotoEdicao(i) {
+      if (!confirm('Remover esta foto do produto?')) return;
+      _editImgs.splice(i, 1);
+      _editImgsMudou = true;
+      renderFotosEdicao();
+    }
+
+    document.getElementById('edit-photo-input').onchange = async function () {
+      const file = this.files[0];
+      this.value = ''; // permite escolher o mesmo arquivo de novo
+      if (!file || _editFotoAlvo < 0 || !_editImgsProntas) return;
+      try {
+        const foto = await compressImage(file);
+        if (_editFotoAlvo < _editImgs.length) _editImgs[_editFotoAlvo] = foto;
+        else if (_editImgs.length < MAX_PHOTOS) _editImgs.push(foto);
+        _editImgsMudou = true;
+        renderFotosEdicao();
+      } catch (err) {
+        alert('Erro ao processar imagem: ' + err.message);
+      }
+    };
+
     function openEditModal(section, id) {
       const product = getProducts(section).find(p => p.id === id);
       if (!product) return;
@@ -3651,6 +3785,10 @@
 
       atualizarNumeracaoEdicao();
 
+      _editImgs = []; _editImgsProntas = false; _editImgsMudou = false;
+      renderFotosEdicao();
+      carregarFotosEdicao(section, product);
+
       document.getElementById('edit-modal').classList.add('open');
     }
 
@@ -3658,18 +3796,13 @@
       document.getElementById('edit-modal').classList.remove('open');
       _editSection = null; _editId = null; _editColors = [];
       _editNum = { mesma: true, geral: [], porCor: {} };
+      _editImgs = []; _editImgsProntas = false; _editImgsMudou = false;
+      avisoFotosEdicao('');
     }
 
-    function saveEdit() {
-      if (!_editSection || !_editId) return;
-      const current = getProducts(_editSection).find(p => p.id === _editId);
-      if (!current) return;
-
-      const aviso = conferirNumeracao(_editNum, _editColors);
-      if (aviso) { alert(aviso); return; }
-
-      const updated = {
-        ...current,
+    // Campos de texto, cores e numeração do modal de edição.
+    function dadosDaEdicao(current) {
+      return {
         brand: document.getElementById('edit-brand').value.trim(),
         name:  document.getElementById('edit-name').value.trim()  || current.name,
         desc:  document.getElementById('edit-desc').value.trim(),
@@ -3678,6 +3811,47 @@
         cores: ordenarCores(_editColors),
         ...numeracaoParaSalvar(_editNum, _editColors),
       };
+    }
+
+    async function saveEdit() {
+      if (!_editSection || !_editId) return;
+      const current = getProducts(_editSection).find(p => p.id === _editId);
+      if (!current) return;
+
+      const aviso = conferirNumeracao(_editNum, _editColors);
+      if (aviso) { alert(aviso); return; }
+
+      if (_editImgsMudou) {
+        const section = _editSection, id = _editId, imgs = _editImgs.slice();
+        const product = Object.assign({}, current, dadosDaEdicao(current), { fotosEm: Date.now() });
+        delete product.cover; delete product.imgCount;
+        const btn = document.querySelector('#edit-modal .admin-save');
+        btn.disabled = true; btn.textContent = 'Salvando...';
+        let salvo;
+        try {
+          salvo = await saveProductWithImages(section, product, imgs);
+          // sem fotos extras, o documento antigo delas não pode sobrar
+          if (imgs.length <= 1) await mediaRef(section, id).delete();
+        } catch (err) {
+          return; // o aviso já saiu; o modal fica aberto para tentar de novo
+        } finally {
+          btn.disabled = false; btn.textContent = 'Salvar Alterações';
+        }
+        // as fotos novas já estão aqui: marca a versão para o card não rebaixá-las
+        window._prodImgs = window._prodImgs || {};
+        window._prodImgs[id] = imgs;
+        window._prodInfo = window._prodInfo || {};
+        window._prodInfo[id] = Object.assign(window._prodInfo[id] || { loading: null },
+          { section, total: imgs.length, fotosEm: salvo.fotosEm });
+        _cache[section] = getProducts(section).map(p => p.id === id ? salvo : p);
+        renderAdminList();
+        atualizarSecao(section);
+        atualizarFiltrosUI();
+        closeEditModal();
+        return;
+      }
+
+      const updated = { ...current, ...dadosDaEdicao(current) };
       saveProduct(_editSection, updated);
       _cache[_editSection] = getProducts(_editSection).map(p => p.id === _editId ? updated : p);
       renderAdminList();
@@ -3784,10 +3958,13 @@
 
         // Se as fotos extras já foram baixadas nesta sessão, mantém — o card é recriado
         // a cada atualização em tempo real e não faz sentido baixar tudo de novo.
+        // `fotosEm` muda quando o admin mexe nas fotos: aí as baixadas estão velhas.
         const jaBaixadas = window._prodImgs[p.id];
-        const manter = jaBaixadas && jaBaixadas.length > imgs.length && jaBaixadas[0] === imgs[0];
+        const infoAntes = window._prodInfo[p.id] || {};
+        const manter = jaBaixadas && jaBaixadas.length > imgs.length && jaBaixadas[0] === imgs[0]
+                       && infoAntes.fotosEm === p.fotosEm;
         window._prodImgs[p.id] = manter ? jaBaixadas : imgs;
-        window._prodInfo[p.id] = Object.assign(window._prodInfo[p.id] || { loading: null }, { section, total });
+        window._prodInfo[p.id] = Object.assign(window._prodInfo[p.id] || { loading: null }, { section, total, fotosEm: p.fotosEm });
 
         const card = document.createElement('div');
         card.className = 'product-card dyn-card fade-in';
